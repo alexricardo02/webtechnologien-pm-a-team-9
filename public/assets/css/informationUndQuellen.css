@@ -1,0 +1,112 @@
+body {
+    font-family: 'Inter', sans-serif;;
+    padding-top: 64px;
+}
+
+.main-content {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color:  white;
+    min-height: 100vh;
+}
+
+
+.welcome-card {
+    background-color: white;
+    width: 100%;
+    max-width: 1000px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
+    overflow: hidden;
+}
+
+
+.card-header {
+    background: linear-gradient(135deg, var(--color-blue), #002b55);
+    color: white;
+    padding: 3rem 2.5rem;
+    text-align: center;
+}
+
+.card-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    margin-top: 0.5rem;
+    opacity: 0.9;
+    font-size: 1.1rem;
+    font-weight: 300;
+}
+
+
+.card-body {
+    padding: 2.5rem;
+    color: var(--text-main);
+    line-height: 1.7; 
+}
+
+
+.lead {
+    font-size: 1.15rem;
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--color-cyan);
+    padding-left: 1rem;
+}
+
+/* Section titles */
+h2 {
+    color: var(--text-main);
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.content-section {
+    margin-bottom: 2.5rem;
+}
+
+
+/* Liste */
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.feature-list.simple li {
+    background: transparent;
+    padding: 0.2rem 0;
+}
+
+.bullet {
+    margin-right: 12px;
+    font-size: 1.2rem;
+}
+
+
+/* For big layouts: 2 columns. For small layouts: 1 column. */
+@media (min-width: var(--min-width-layout)) {
+    .grid-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+}

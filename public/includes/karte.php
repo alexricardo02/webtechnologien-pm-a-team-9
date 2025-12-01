@@ -33,56 +33,25 @@
                                             '#FFFFFF';
         }
 
+
+        var urlApi = 'includes/api_opfer.php';
+
         // load both json files
         Promise.all([
-            // 1. Load raw text and fix it if needed.
-            fetch('data/Opfer_2023_2024.json')
-                .then(res => {
-                    if (!res.ok) throw new Error("Error cargando Opfer json");
-                    return res.text(); // TEXT, not Json yet
-                })
-                .then(texto => {
-                    // Automatic JSON repair
-                    var cleanText = texto.trim(); // Remove whitespace at the beginning/end
+            // CHANGE 1: We fetch the API response (JSON), not the raw text file
+            fetch(urlApi).then(res => {
+                if (!res.ok) throw new Error("Error loading API data");
+                return res.json();
+            }),
 
-                    // If it does NOT start with a bracket, assume it's missing and wrap it
-                    if (!cleanText.startsWith('[')) {
-                        console.warn("⚠️ The JSON was missing brackets. Automatically repairing...");
-                        // We add brackets at the beginning and the end
-                        cleanText = '[' + cleanText + ']';
-                    }
-
-                    // Now we convert it to a JSON object
-                    return JSON.parse(cleanText);
-                }),
-
+            // CHANGE 2: Load the map
             fetch('data/landkreise.geo.json').then(res => {
-                if (!res.ok) throw new Error("Error cargando GeoJSON");
+                if (!res.ok) throw new Error("Error loading GeoJSON");
                 return res.json();
             })
         ])
             .then(function ([opferDaten, geoJSONData]) {
 
-                // We store the total inside the map to use it when painting
-                var amountOfOpferMap = {};
-
-                // Loop through the data and sum up the values per Landkreis
-                opferDaten.forEach(function (eintrag) {
-
-                    var menge = parseInt(eintrag.Wert, 10);
-
-                    if (isNaN(menge)) menge = 0;
-
-                    if (eintrag["Stadt/Landkreis"]) {
-                        var name = eintrag["Stadt/Landkreis"].toLowerCase().trim();
-
-                        if (amountOfOpferMap[name]) {
-                            amountOfOpferMap[name] += menge;
-                        } else {
-                            amountOfOpferMap[name] = menge;
-                        }
-                    }
-                });
 
                 // Now we loop through the GeoJSON features and add the total Opfer
                 geoJSONData.features.forEach(function (feature) {
@@ -92,15 +61,15 @@
                     var amountOfOpfer = 0;
 
                     // Matching
-                    if (amountOfOpferMap[landkreisName]) {
+                    if (opferDaten[landkreisName]) {
                         // Case 1: Exact match (e.g., "berlin" == "berlin")
-                        amountOfOpfer = amountOfOpferMap[landkreisName];
+                        amountOfOpfer = opferDaten[landkreisName];
                     }
                     else if (landkreisName.includes("städte")) {
                         // Case 2: GADM correction (e.g., "osnabrück städte" -> search for "osnabrück")
                         var correctedName = landkreisName.replace(" städte", "").trim();
-                        if (amountOfOpferMap[correctedName]) {
-                            amountOfOpfer = amountOfOpferMap[correctedName];
+                        if (opferDaten[correctedName]) {
+                            amountOfOpfer = opferDaten[correctedName];
                         }
                     }
 

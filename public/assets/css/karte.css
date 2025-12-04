@@ -3,47 +3,8 @@ body {
     padding-top: 64px;
 }
 
-#dashboard-container {
-    max-width: 1600px;       /* Evita que se estire demasiado en pantallas gigantes */
-    margin: 0 auto;          /* container centered */
-    padding: 10px 20px;      /* Espacio interno respecto al borde de la ventana */
-    padding-top: 10px;
-    gap: 30px;
-}
-
-.page-header {
-    margin-bottom: 30px;
-}
-
-.dashboard-row {
-    display: flex;          
-    gap: 30px;               /* Gap between map and card */
-    align-items: stretch;    /* Makes both boxes the same height */
-    margin-bottom: 30px;
-}
-
-.dashboard-card h3 {
-    color:var(--text-main);
-}
-
-
-.dashboard-card {
-    background-color: white;
-    border-radius: 12px;     /* Rounded corners */
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15); /* Soft professional shadow */
-    padding: 20px;           /* Inner spacing within the card */
-    overflow: hidden;        /* Ensures nothing spills out of the card */
-    display: flex;
-    flex-direction: column;
-}
-
 .map-card {
     flex: 6;                 /* Takes 6 parts of the available space */
-}
-
-.chart-card {
-    flex: 4;                 /* Takes 4 parts of the available space */
-    min-width: 300px;        /* Prevents the chart from getting too squished */
 }
 
 #map {
@@ -52,22 +13,3 @@ body {
     border-radius: 8px;      /* Round the map corners as well */
     z-index: 1;
 }
-
-
-/*
-@media (max-width: 1024px) {
-    .dashboard-row {
-        flex-direction: column; 
-    }
-    
-    .map-card, .chart-card {
-        flex: auto;          
-        width: 100%;
-    }
-    
-    #map {
-        height: 400px;     
-    }
-}
-
-*/

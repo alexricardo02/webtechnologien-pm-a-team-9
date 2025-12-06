@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="assets/css/kpi.css">
 
     <script src="kpi2023.js" defer></script>
-    <script src="kpi2024.js" defer></script>
 </head>
 
 <body>

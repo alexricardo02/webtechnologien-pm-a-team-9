@@ -6,7 +6,7 @@
 
         <nav class="headerMenu" role="navigation">
             <ul class="navbarList">
-                <li class="navbarItem"><a href="/webtechnologien-pm-a-team-9/public/uberblick.php" class="navbarLink">Überblick</a></li>
+                <li class="navbarItem"><a href="uberblick.php" class="navbarLink">Überblick</a></li>
                 <li class="navbarItem"><a href="raumdimension.php" class="navbarLink">Raumdimension</a></li>
                 <li class="navbarItem"><a href="zeitdimension.php" class="navbarLink">Zeitdimension</a></li>
                 <li class="navbarItem"><a href="datenverwaltung.php" class="navbarLink navbarLink--cta">Datenverwaltung</a></li>

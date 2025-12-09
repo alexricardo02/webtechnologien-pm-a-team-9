@@ -3,7 +3,7 @@ body {
     padding-top: 64px;
 }
 
-#dashboard-container {
+#dashboard-container {       /* !Übersetzung bitte! */
     max-width: 1600px;       /* Evita que se estire demasiado en pantallas gigantes */
     margin: 0 auto;          /* container centered */
     padding: 10px 20px;      /* Espacio interno respecto al borde de la ventana */

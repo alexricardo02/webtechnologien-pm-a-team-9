@@ -1,11 +1,11 @@
 <?php
 $straftat_hauptkategorien = [
-    "Alle Straftaten" => "",
-    "Straftaten insgesamt" => "Straftaten insgesamt",
-    "Tötung & Körperverletzung" => "Tötung & Körperverletzung",
-    "Sexualdelikte" => "Sexualdelikte",
-    "Diebstahl" => "Diebstahl",
-    "Raub & Erpressung" => "Raub & Erpressung"
+  "Alle Straftaten" => "",
+  "Straftaten insgesamt" => "Straftaten insgesamt",
+  "Tötung & Körperverletzung" => "Tötung & Körperverletzung",
+  "Sexualdelikte" => "Sexualdelikte",
+  "Diebstahl" => "Diebstahl",
+  "Raub & Erpressung" => "Raub & Erpressung"
 ];
 ?>
 <!DOCTYPE html>
@@ -20,62 +20,100 @@ $straftat_hauptkategorien = [
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js/raumdimension_chart.js" defer></script> 
-  
+  <script src="assets/js/raumdimension_chart.js" defer></script>
+
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/header.css">
   <link rel="stylesheet" href="assets/css/karte.css">
+  <link rel="stylesheet" href="assets/css/kpi.css">
+  <link rel="stylesheet" href="assets/css/filter.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <script src="kpi2023.js" defer></script>
+  <script src="kpi2024.js" defer></script>
 </head>
 
 <body>
   <?php include "includes/header.php"; ?>
 
   <main id="dashboard-container">
-    <div class="page-header">
-      <h1>Raumdimension</h1>
-      <p>Geovisualisierung der Straftaten nach Landkreisen</p>
-    </div>
-    
-    <section class="controls-section dashboard-row" style="margin-bottom: 30px;">
-        <div class="dashboard-card filter-card-narrow" style="min-width: 250px; max-width: 300px; flex-grow: 0;">
-            <h3>Filter</h3>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div>
-                    <label for="filter-jahr">Jahr</label>
-                    <select id="filter-jahr" class="styled-select" style="width: 100%;">
-                        <option value="">Alle Jahre</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="filter-geschlecht">Geschlecht</label>
-                    <select id="filter-geschlecht" class="styled-select" style="width: 100%;">
-                        <option value="">Alle Geschlechter</option>
-                        <option value="maennlich">Männlich</option>
-                        <option value="weiblich">Weiblich</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="filter-straftat">Straftat (Hauptkategorie)</label>
-                    <select id="filter-straftat" class="styled-select" style="width: 100%;">
-                        <?php 
-                        foreach ($straftat_hauptkategorien as $label => $value) {
-                            echo "<option value=\"" . htmlspecialchars(strtolower($value)) . "\">" . htmlspecialchars($label) . "</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-                <button id="apply-filters" class="button-primary" style="margin-top: 10px; padding: 10px;">Filter anwenden</button>
-            </div>
+    <header class="dashboard-header">
+      <h2>Dashboard</h2>
+      <p class="subtitle">Kriminalitätsstatistik & Datenanalyse</p>
+    </header>
+    <section class="controls-section">
+
+      <div class="dashboard-card filter-card">
+
+        <h3 style="margin: 0; padding-right: 20px; border-right: 1px solid #eee;">Filter</h3>
+
+        <div class="filter-row-container">
+
+          <div class="filter-group">
+            <label for="filter-jahr">Jahr</label>
+            <select id="filter-jahr" class="styled-select">
+              <option value="">Alle Jahre</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-geschlecht">Geschlecht</label>
+            <select id="filter-geschlecht" class="styled-select">
+              <option value="">Alle Geschlechter</option>
+              <option value="maennlich">Männlich</option>
+              <option value="weiblich">Weiblich</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-straftat">Straftat</label>
+            <select id="filter-straftat" class="styled-select">
+              <?php
+              foreach ($straftat_hauptkategorien as $label => $value) {
+                echo "<option value=\"" . htmlspecialchars(strtolower($value)) . "\">" . htmlspecialchars($label) . "</option>";
+              }
+              ?>
+            </select>
+          </div>
+
+          <button id="apply-filters" class="button-primary">Anwenden</button>
+
         </div>
+      </div>
     </section>
+    <section class="kpi-grid">
+
+      <div class="kpi-card kpi-2023">
+        <div class="card-header">
+          <span class="year-badge">2023</span>
+          <h3>Gesamtopfer</h3>
+        </div>
+        <div class="card-body">
+          <div class="kpi-number" id="val-2023">Lädt...</div>
+          <div class="kpi-trend neutral">Basisjahr</div>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-2024">
+        <div class="card-header">
+          <span class="year-badge badge-highlight">2024</span>
+          <h3>Gesamtopfer</h3>
+        </div>
+        <div class="card-body">
+          <div class="kpi-number" id="val-2024">Lädt...</div>
+          <div class="kpi-trend">Aktuelle Daten</div>
+        </div>
+      </div>
+
+    </section>
+
+
 
     <div class="dashboard-row">
       <div class="dashboard-card map-card">
-        <h3>Deutschlandkarte</h3>
         <?php include "includes/karte.php"; ?>
       </div>
 
@@ -94,7 +132,7 @@ $straftat_hauptkategorien = [
           <canvas id="chartId"></canvas>
         </div>
       </div>
-       <div class="dashboard-card chart-card">
+      <div class="dashboard-card chart-card">
         <h3>Zusätzliche Statistik</h3>
         <div class="chart-placeholder">
           <canvas id="anotherChart"></canvas>
@@ -106,4 +144,5 @@ $straftat_hauptkategorien = [
     </div>
   </main>
 </body>
+
 </html>

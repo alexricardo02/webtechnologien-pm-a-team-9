@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+
 // Straftat, Gemeindeschluessel, Stadt/Landkreis, Fallstatus, Jahr, Wert, Geschlecht, Altersgruppe, Straftat Hauptkategorie
 $col_straftat = 0;
 $col_gemeindeschluessel = 1;
@@ -17,7 +18,23 @@ $filter_geschlecht = isset($_GET['geschlecht']) ? trim(strtolower($_GET['geschle
 $filter_straftat = isset($_GET['straftat']) ? trim(strtolower($_GET['straftat'])) : null;
 $list_mode = isset($_GET['list']) ? trim(strtolower($_GET['list'])) : 'all'; 
 
+// Cache Datei in Bezug auf Filter erstellen
+// list mode ist für top 5, bottom 5, usw.
+$cacheKey = "cache_" . 
+            ($filter_jahr ?? 'all') . "_" . 
+            ($filter_geschlecht ?? 'all') . "_" . 
+            ($filter_straftat ?? 'all') . "_" . 
+            ($list_mode) . ".json"; 
 
+$cacheFile = '../data/cache/' . $cacheKey;
+
+// Wenn cache schon existiert (und nicht älter als 24h ist), laden
+if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < 86400)) {
+    readfile($cacheFile);
+    exit;
+}
+
+// Wenn cache nicht existiert, CSV lesen und filtern
 // 2. CSV-Datei öffnen und lesen
 $csvFile = '../data/Opfer_Data.csv';
 
@@ -71,5 +88,11 @@ if ($list_mode === 'top5') {
     asort($non_zero_results);
     $final_results = array_slice($non_zero_results, 0, 5, true);
 } 
-echo json_encode($final_results);
+
+$jsonOutput = json_encode($final_results);
+if (!is_dir('../data/cache')) mkdir('../data/cache', 0777, true);
+file_put_contents($cacheFile, $jsonOutput);
+
+
+echo $jsonOutput;
 ?>

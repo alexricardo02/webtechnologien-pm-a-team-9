@@ -1,5 +1,5 @@
-body {
-    font-family: 'Inter', sans-serif;;
+html, body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     padding-top: 64px;
 }
 

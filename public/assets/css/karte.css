@@ -17,7 +17,7 @@ html, body {
 .dashboard-row {
     display: flex;          
     gap: 30px;               /* Gap between map and card */
-    align-items: stretch;    /* Makes both boxes the same height */
+    align-items: flex-start;    /* Makes both boxes the same height */
     margin-bottom: 30px;
 }
 

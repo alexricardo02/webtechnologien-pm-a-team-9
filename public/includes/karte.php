@@ -9,6 +9,9 @@
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
 
+        var currentLegend = null;       // Active Legend
+        var currentGeoJsonLayer = null; // Poligon Layer
+
         // map styling
         function style(feature) {
             return {
@@ -35,115 +38,106 @@
         }
 
 
-        var urlApi = 'includes/api_opfer.php';
-
-        // load both json files
-        Promise.all([
-            // CHANGE 1: We fetch the API response (JSON), not the raw text file
-            fetch(urlApi).then(res => {
-                if (!res.ok) throw new Error("Error loading API data");
-                return res.json();
-            }),
-
-            // CHANGE 2: Load the map
-            fetch('data/landkreise.geo.json').then(res => {
-                if (!res.ok) throw new Error("Error loading GeoJSON");
-                return res.json();
-            })
-        ])
-            .then(function ([opferDaten, geoJSONData]) {
+        window.initMap = function (geoJSONData, opferIndex) {
 
 
-                // Now we loop through the GeoJSON features and add the total Opfer
-                geoJSONData.features.forEach(function (feature) {
+            // Now we loop through the GeoJSON features and add the total Opfer
+            geoJSONData.features.forEach(function (feature) {
 
-                    var landkreisName = feature.properties.NAME_3.toLowerCase().trim();
+                var landkreisName = feature.properties.NAME_3.toLowerCase().trim();
 
-                    var amountOfOpfer = 0;
+                var amountOfOpfer = 0;
 
-                    // Matching
-                    if (opferDaten[landkreisName]) {
-                        // Case 1: Exact match (e.g., "berlin" == "berlin")
-                        amountOfOpfer = opferDaten[landkreisName];
+                // Search in the index
+                if (opferIndex.hasOwnProperty(landkreisName)) {
+                    amountOfOpfer = opferIndex[landkreisName];
+                }
+                else if (landkreisName.includes("städte")) {
+                    var correctedName = landkreisName.replace(" städte", "").trim();
+                    if (opferIndex.hasOwnProperty(correctedName)) {
+                        amountOfOpfer = opferIndex[correctedName];
                     }
-                    else if (landkreisName.includes("städte")) {
-                        // Case 2: GADM correction (e.g., "osnabrück städte" -> search for "osnabrück")
-                        var correctedName = landkreisName.replace(" städte", "").trim();
-                        if (opferDaten[correctedName]) {
-                            amountOfOpfer = opferDaten[correctedName];
-                        }
-                    }
-
-                    // We store the total inside the map to use it when painting
-                    feature.properties.total_opfer = amountOfOpfer;
-                });
-
-
-
-                // Finally, we add the GeoJSON to the map. We store the layer in a variable to reset the style on mouseout
-                var geojsonLayer = L.geoJSON(geoJSONData, {
-                    style: style, // Leaflet applies this function to EACH shape automatically
-                    onEachFeature: function (feature, layer) {
-                        layer.bindPopup(
-                            "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
-                            "<br>Gesamt Opfer: " + feature.properties.total_opfer
-                        );
-
-                        layer.on({
-                            mouseover: function (e) {
-                                var layer = e.target;
-                                layer.setStyle({
-                                    weight: 3,
-                                    color: '#666',
-                                    dashArray: '',
-                                    fillOpacity: 0.7
-                                });
-                                layer.bringToFront();
-                            },
-                            mouseout: function (e) {
-                                geojsonLayer.resetStyle(e.target);
-                            }
-                        });
-
-                    }
-                }).addTo(map);
-
-                // Legend
-
-                var legend = L.control({ position: 'topright' });
-                legend.onAdd = function (map) {
-                    var div = L.DomUtil.create('div', 'info legend'),
-                        grades = [0, 5000, 10000, 25000, 50000, 80000, 100000, 150000, 200000]
-
-                    // Legend div styling
-                    div.style.padding = '6px 8px';
-                    div.style.borderRadius = '5px';
-                    div.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
-                    div.style.backdropFilter = 'blur(10px)';
-
-                    div.innerHTML += '<strong>Gesamt Opfer</strong><br>';
-
-                    // loop through our density intervals and generate a label with a colored square for each interval
-                    for (var i = 0; i < grades.length; i++) {
-
-                        var from = grades[i];
-                        var to = grades[i + 1];
-
-                        var color = getColor(from + 1);
-
-                        div.innerHTML +=
-                            '<i style="background:' + color + '; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7"></i> ' +
-                            Math.round(from) + (to ? ' - ' + Math.round(to) + '<br>' : '+');
-                    }
-
-                    return div;
                 }
 
-                legend.addTo(map);
-
-            }).catch(function (error) {
-                console.error("There was an error trying to load the data", error);
-                alert("Fix this thing");
+                // We store the total inside the map to use it when painting
+                feature.properties.total_opfer = amountOfOpfer;
             });
+
+
+            if (currentGeoJsonLayer) {
+                map.removeLayer(currentGeoJsonLayer);
+            }
+
+
+
+            // Finally, we add the GeoJSON to the map. We store the layer in a variable to reset the style on mouseout
+            var currentGeoJsonLayer = L.geoJSON(geoJSONData, {
+                style: style, // Leaflet applies this function to EACH shape automatically
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(
+                        "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
+                        "<br>Gesamt Opfer: " + feature.properties.total_opfer
+                    );
+
+                    layer.on({
+                        mouseover: function (e) {
+                            var layer = e.target;
+                            layer.setStyle({
+                                weight: 3,
+                                color: '#666',
+                                dashArray: '',
+                                fillOpacity: 0.7
+                            });
+                            layer.bringToFront();
+                        },
+                        mouseout: function (e) {
+                            currentGeoJsonLayer.resetStyle(e.target);
+                        }
+                    });
+
+                }
+            }).addTo(map);
+
+
+            // --- WICHTIG: vorherige LEGEND löschen ---
+            if (currentLegend) {
+                map.removeControl(currentLegend);
+            }
+
+            // Legend
+
+            var legend = L.control({ position: 'topright' });
+            legend.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'info legend'),
+                    grades = [0, 5000, 10000, 25000, 50000, 80000, 100000, 150000, 200000]
+
+                // Legend div styling
+                div.style.padding = '6px 8px';
+                div.style.borderRadius = '5px';
+                div.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
+                div.style.backdropFilter = 'blur(10px)';
+
+                div.innerHTML += '<strong>Gesamt Opfer</strong><br>';
+
+                // loop through our density intervals and generate a label with a colored square for each interval
+                for (var i = 0; i < grades.length; i++) {
+
+                    var from = grades[i];
+                    var to = grades[i + 1];
+
+                    var color = getColor(from + 1);
+
+                    div.innerHTML +=
+                        '<i style="background:' + color + '; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7"></i> ' +
+                        Math.round(from) + (to ? ' - ' + Math.round(to) + '<br>' : '+');
+                }
+
+                return div;
+            }
+
+            currentLegend = legend;
+            currentLegend.addTo(map);
+
+        };
     </script>
 </div>

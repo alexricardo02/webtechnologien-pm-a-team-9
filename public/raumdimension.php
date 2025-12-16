@@ -30,8 +30,11 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/kpi.css">
   <link rel="stylesheet" href="assets/css/filter.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
+  <script src="assets/js/centralDataManager.js" defer></script>
   <script src="kpi2023.js" defer></script>
   <script src="kpi2024.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  
 </head>
 
 <body>

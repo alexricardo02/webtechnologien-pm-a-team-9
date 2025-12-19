@@ -121,27 +121,21 @@ $straftat_hauptkategorien = [
       </div>
 
       <div class="dashboard-card chart-card">
-        <h3>Top 5 Landkreise (Höchste Opferzahlen)</h3>
         <div class="chart-placeholder">
-          <canvas id="opferChart"></canvas>
+          <canvas id="top5chart"></canvas>
         </div>
       </div>
     </div>
 
     <div class="dashboard-row">
       <div class="dashboard-card chart-card">
-        <h3>Bottom 5 Landkreise (Niedrigste Opferzahlen)</h3>
         <div class="chart-placeholder">
-          <canvas id="chartId"></canvas>
+          <canvas id="bottom5chart"></canvas>
         </div>
       </div>
       <div class="dashboard-card chart-card">
-        <h3>Zusätzliche Statistik</h3>
         <div class="chart-placeholder">
-          <canvas id="anotherChart"></canvas>
-          <p style="text-align: center; color: #888; margin-top: 50px;">
-            (Platzhalter)
-          </p>
+          <canvas id="opferNachLandkreisenBis10Chart"></canvas>
         </div>
       </div>
     </div>

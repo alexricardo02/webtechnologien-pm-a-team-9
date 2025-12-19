@@ -81,6 +81,17 @@ window.initDashboardCharts = function (rawData) {
         value: val
     }));
 
+    // Mehr-als-10-Landkreise-Warnung anzeigen/verstecken
+    const warningElement = document.getElementById('limitWarning');
+    if (warningElement) {
+        // Wenn user mehr als 10 Landkreise hat, Warnung anzeigen
+        if (aggregatedArray.length > 10) {
+            warningElement.style.display = 'block';
+        } else {
+            warningElement.style.display = 'none';
+        }
+    }
+
     // 2. Top 5 berechnen
     let top5 = [...aggregatedArray].sort((a, b) => b.value - a.value).slice(0, 5);
 

@@ -30,11 +30,12 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/kpi.css">
   <link rel="stylesheet" href="assets/css/filter.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
   <script src="assets/js/centralDataManager.js" defer></script>
   <script src="kpi2023.js" defer></script>
   <script src="kpi2024.js" defer></script>
   <script src="assets/js/main.js" defer></script>
-  
+
 </head>
 
 <body>
@@ -134,6 +135,10 @@ $straftat_hauptkategorien = [
         </div>
       </div>
       <div class="dashboard-card chart-card">
+        <div id="limitWarning" class="alert-info-mini" style="display: none;">
+          <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen
+          angezeigt.
+        </div>
         <div class="chart-placeholder">
           <canvas id="opferNachLandkreisenBis10Chart"></canvas>
         </div>

@@ -1,0 +1,14 @@
+html, body {
+    padding-top: 30px;
+}
+
+.alert-info-mini {
+    background-color: #e1f5fe;
+    color: #01579b;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    border-left: 4px solid #0288d1;
+    animation: fadeIn 0.5s;
+}

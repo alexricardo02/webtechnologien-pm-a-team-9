@@ -1,6 +1,5 @@
 
 
-
 const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = 'x', showTitle = true, minHeight = 350) => {
     const ctx = document.getElementById(elementId);
     if (!ctx) return;
@@ -64,7 +63,7 @@ const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = '
     });
 };
 
-// --- Main Funktion (Llamada por main.js) ---
+// --- Main Funktion (Durch main.js) ---
 window.initDashboardCharts = function (rawData) {
 
     // 1. Daten durch Landkreis gruppiern und (Wenn Daten duplikate haben, summieren)
@@ -82,6 +81,17 @@ window.initDashboardCharts = function (rawData) {
         value: val
     }));
 
+    // Mehr-als-10-Landkreise-Warnung anzeigen/verstecken
+    const warningElement = document.getElementById('limitWarning');
+    if (warningElement) {
+        // Wenn user mehr als 10 Landkreise hat, Warnung anzeigen
+        if (aggregatedArray.length > 10) {
+            warningElement.style.display = 'block';
+        } else {
+            warningElement.style.display = 'none';
+        }
+    }
+
     // 2. Top 5 berechnen
     let top5 = [...aggregatedArray].sort((a, b) => b.value - a.value).slice(0, 5);
 
@@ -91,10 +101,17 @@ window.initDashboardCharts = function (rawData) {
         .sort((a, b) => a.value - b.value)
         .slice(0, 5);
 
+    let opferNachLandkreisenBis10 = [...aggregatedArray]
+        .filter(i => i.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 10);
+
     // 4. Render
     const top5_colors = ['#0055A5', '#347AB8', '#599DD1', '#7EBBE0', '#A3D8EF'];
     const bottom5_colors = ['#00B4D8', '#48C9B0', '#76D7C4', '#A9CCE3', '#D6EAF8'];
+    const bis10_colors = ['#023E8A', '#0077B6', '#0096C7', '#00B4D8', '#48CAE4', '#90E0EF', '#ADE8F4', '#CAF0F8', '#E0FBFC', '#F1FAFF'];
 
-    renderChart('opferChart', top5, 'Top 5 Landkreise', top5_colors, 'y');
-    renderChart('chartId', bottom5, 'Bottom 5 Landkreise', bottom5_colors, 'x');
+    renderChart('top5chart', top5, 'Top 5 Landkreise', top5_colors, 'y');
+    renderChart('bottom5chart', bottom5, 'Bottom 5 Landkreise', bottom5_colors, 'x');
+    renderChart('opferNachLandkreisenBis10Chart', opferNachLandkreisenBis10, 'Opferzahlen nach Landkreisen', bis10_colors, 'y', true, 500);
 };

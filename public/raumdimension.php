@@ -30,11 +30,12 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/kpi.css">
   <link rel="stylesheet" href="assets/css/filter.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
   <script src="assets/js/centralDataManager.js" defer></script>
   <script src="kpi2023.js" defer></script>
   <script src="kpi2024.js" defer></script>
   <script src="assets/js/main.js" defer></script>
-  
+
 </head>
 
 <body>
@@ -121,27 +122,25 @@ $straftat_hauptkategorien = [
       </div>
 
       <div class="dashboard-card chart-card">
-        <h3>Top 5 Landkreise (Höchste Opferzahlen)</h3>
         <div class="chart-placeholder">
-          <canvas id="opferChart"></canvas>
+          <canvas id="top5chart"></canvas>
         </div>
       </div>
     </div>
 
     <div class="dashboard-row">
       <div class="dashboard-card chart-card">
-        <h3>Bottom 5 Landkreise (Niedrigste Opferzahlen)</h3>
         <div class="chart-placeholder">
-          <canvas id="chartId"></canvas>
+          <canvas id="bottom5chart"></canvas>
         </div>
       </div>
       <div class="dashboard-card chart-card">
-        <h3>Zusätzliche Statistik</h3>
+        <div id="limitWarning" class="alert-info-mini" style="display: none;">
+          <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen
+          angezeigt.
+        </div>
         <div class="chart-placeholder">
-          <canvas id="anotherChart"></canvas>
-          <p style="text-align: center; color: #888; margin-top: 50px;">
-            (Platzhalter)
-          </p>
+          <canvas id="opferNachLandkreisenBis10Chart"></canvas>
         </div>
       </div>
     </div>

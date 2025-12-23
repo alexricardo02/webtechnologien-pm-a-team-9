@@ -8,20 +8,29 @@ if (!$verbindung) {
     exit();
 }
 
-// 2. Filter von Frontend abholen
+// Filter variables
 $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : '';
 $geschlecht = isset($_GET['geschlecht']) ? $_GET['geschlecht'] : '';
 $straftat = isset($_GET['straftat']) ? $_GET['straftat'] : '';
 $landkreis = isset($_GET['landkreis']) ? $_GET['landkreis'] : '';
 $altersgruppe = isset($_GET['altersgruppe']) ? $_GET['altersgruppe'] : '';
 
+// NEW: Determine grouping mode (default to location for the map)
+$groupBy = isset($_GET['groupBy']) ? $_GET['groupBy'] : 'location';
 
+// Base SQL
+if ($groupBy === 'gender') {
+    // Select Gender as the 'name' for the chart
+    $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as total_wert FROM Opfer_Data WHERE 1=1";
+} else {
+    // Default: Select Location as 'name' (for Map/Raumdimension)
+    $sql = "SELECT Stadt_Landkreis as name, Jahr, SUM(Wert) as total_wert FROM Opfer_Data WHERE 1=1";
+}
 
-// 3. SQL Abfrage mit Filtern bauen
-$sql = "SELECT Stadt_Landkreis, Jahr, SUM(Wert) as total_wert FROM Opfer_Data WHERE 1=1";
 $params = [];
 $types = "";
 
+// Apply filters
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";
     $types .= "i";
@@ -48,12 +57,14 @@ if ($altersgruppe && $altersgruppe !== 'all') {
     $params[] = $altersgruppe;
 }
 
-// --- Gruppierung
-// Durch Landkreis und Jahr gruppieren. MySQL summiert die Werte automatisch.
-$sql .= " GROUP BY Stadt_Landkreis, Jahr";
+// Grouping Logic
+if ($groupBy === 'gender') {
+    $sql .= " GROUP BY Geschlecht, Jahr";
+} else {
+    $sql .= " GROUP BY Stadt_Landkreis, Jahr";
+}
 
-
-// 4. Vorbereiten und Ausführen
+// Execute
 $stmt = $verbindung->prepare($sql);
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
@@ -61,17 +72,17 @@ if (!empty($params)) {
 $stmt->execute();
 $result = $stmt->get_result();
 
-// 5. Daten formattieren, damit JS sie versteht
 $data = [];
 while ($row = $result->fetch_assoc()) {
     $data[] = [
-        'name' => $row['Stadt_Landkreis'], // JS braucht das um 
-        'year' => (int)$row['Jahr'],       // JS braucht das für KPIs
-        'value' => (int)$row['total_wert'] // JS braucht das für Summe
+        'name' => $row['name'],    // Contains either Location or Gender
+        'year' => (int) $row['Jahr'],
+        'value' => (int) $row['total_wert']
     ];
 }
-// 6. JSON schicken
+
 echo json_encode($data);
 
 $stmt->close();
 $verbindung->close();
+?>

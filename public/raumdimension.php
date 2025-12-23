@@ -22,7 +22,9 @@ $straftat_hauptkategorien = [
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
   <script src="assets/js/raumdimension_chart.js" defer></script>
+  <script src="assets/js/gender_chart.js" defer></script>
 
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/header.css">
@@ -49,11 +51,8 @@ $straftat_hauptkategorien = [
     <section class="controls-section">
 
       <div class="dashboard-card filter-card">
-
         <h3 style="margin: 0; padding-right: 20px; border-right: 1px solid #eee;">Filter</h3>
-
         <div class="filter-row-container">
-
           <div class="filter-group">
             <label for="filter-jahr">Jahr</label>
             <select id="filter-jahr" class="styled-select">
@@ -62,7 +61,6 @@ $straftat_hauptkategorien = [
               <option value="2024">2024</option>
             </select>
           </div>
-
           <div class="filter-group">
             <label for="filter-geschlecht">Geschlecht</label>
             <select id="filter-geschlecht" class="styled-select">
@@ -71,7 +69,6 @@ $straftat_hauptkategorien = [
               <option value="weiblich">Weiblich</option>
             </select>
           </div>
-
           <div class="filter-group">
             <label for="filter-straftat">Straftat</label>
             <select id="filter-straftat" class="styled-select">
@@ -82,14 +79,11 @@ $straftat_hauptkategorien = [
               ?>
             </select>
           </div>
-
           <button id="apply-filters" class="button-primary">Anwenden</button>
-
         </div>
       </div>
     </section>
     <section class="kpi-grid">
-
       <div class="kpi-card kpi-2023">
         <div class="card-header">
           <span class="year-badge">2023</span>
@@ -100,7 +94,6 @@ $straftat_hauptkategorien = [
           <div class="kpi-trend neutral">Basisjahr</div>
         </div>
       </div>
-
       <div class="kpi-card kpi-2024">
         <div class="card-header">
           <span class="year-badge badge-highlight">2024</span>
@@ -111,30 +104,40 @@ $straftat_hauptkategorien = [
           <div class="kpi-trend">Aktuelle Daten</div>
         </div>
       </div>
-
     </section>
 
-
-
-    <div class="dashboard-row">
-      <div class="dashboard-card map-card">
+    <div class="dashboard-row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+      
+      <div class="dashboard-card map-card" style="flex: 1; min-width: 0;">
         <?php include "includes/karte.php"; ?>
       </div>
 
-      <div class="dashboard-card chart-card">
+      <div class="dashboard-card chart-card" style="flex: 1; min-width: 0;">
+        <div class="chart-placeholder" style="height: 350px; position: relative;">
+            <canvas id="genderChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="dashboard-row" style="display: flex; gap: 20px; margin-bottom: 20px;">
+      
+      <div class="dashboard-card chart-card" style="flex: 1; min-width: 0;">
         <div class="chart-placeholder">
           <canvas id="top5chart"></canvas>
         </div>
       </div>
-    </div>
 
-    <div class="dashboard-row">
-      <div class="dashboard-card chart-card">
-        <div class="chart-placeholder">
+      <div class="dashboard-card chart-card" style="flex: 1; min-width: 0;">
+        <div class="chart-placeholder" style="height: 350px; position: relative;">
           <canvas id="bottom5chart"></canvas>
         </div>
       </div>
-      <div class="dashboard-card chart-card">
+
+    </div>
+
+    <div class="dashboard-row">
+      <div class="dashboard-card chart-card" style="width: 100%; flex: 1;">
         <div id="limitWarning" class="alert-info-mini" style="display: none;">
           <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen
           angezeigt.
@@ -144,6 +147,7 @@ $straftat_hauptkategorien = [
         </div>
       </div>
     </div>
+
   </main>
 </body>
 

@@ -24,6 +24,8 @@ async function updateGenderChart(filters) {
     const genderSums = {};
     let totalCount = 0;
 
+    console.log(rawData);
+
     rawData.forEach(item => {
         let gender = item.name;
         if (!genderSums[gender]) genderSums[gender] = 0;

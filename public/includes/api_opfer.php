@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-
 include 'db.inc.php';
 
 if (!$verbindung) {
@@ -8,29 +7,25 @@ if (!$verbindung) {
     exit();
 }
 
-// Filter variables
-$jahr = isset($_GET['jahr']) ? $_GET['jahr'] : '';
-$geschlecht = isset($_GET['geschlecht']) ? $_GET['geschlecht'] : '';
-$straftat = isset($_GET['straftat']) ? $_GET['straftat'] : '';
-$landkreis = isset($_GET['landkreis']) ? $_GET['landkreis'] : '';
-$altersgruppe = isset($_GET['altersgruppe']) ? $_GET['altersgruppe'] : '';
+$jahr = $_GET['jahr'] ?? '';
+$geschlecht = $_GET['geschlecht'] ?? '';
+$straftat = $_GET['straftat'] ?? '';
+$landkreis = $_GET['landkreis'] ?? '';
+$groupBy = $_GET['groupBy'] ?? 'location';
 
-// NEW: Determine grouping mode (default to location for the map)
-$groupBy = isset($_GET['groupBy']) ? $_GET['groupBy'] : 'location';
-
-// Base SQL
+// 1. SQL Basis
 if ($groupBy === 'gender') {
-    // Select Gender as the 'name' for the chart
-    $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as total_wert FROM Opfer_Data WHERE 1=1";
+    $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+} elseif ($groupBy === 'straftat') {
+    $sql = "SELECT Straftat_Hauptkategorie as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 } else {
-    // Default: Select Location as 'name' (for Map/Raumdimension)
-    $sql = "SELECT Stadt_Landkreis as name, Jahr, SUM(Wert) as total_wert FROM Opfer_Data WHERE 1=1";
+    $sql = "SELECT Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 }
 
 $params = [];
 $types = "";
 
-// Apply filters
+// Filter
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";
     $types .= "i";
@@ -46,43 +41,36 @@ if ($straftat && $straftat !== 'all') {
     $types .= "s";
     $params[] = $straftat;
 }
-if ($landkreis && $landkreis !== 'all') {
-    $sql .= " AND Stadt_Landkreis = ?";
-    $types .= "s";
-    $params[] = $landkreis;
-}
-if ($altersgruppe && $altersgruppe !== 'all') {
-    $sql .= " AND Altersgruppe = ?";
-    $types .= "s";
-    $params[] = $altersgruppe;
-}
 
-// Grouping Logic
+// 2. GROUP BY
 if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";
+} elseif ($groupBy === 'straftat') {
+    $sql .= " GROUP BY Straftat_Hauptkategorie, Jahr";
 } else {
     $sql .= " GROUP BY Stadt_Landkreis, Jahr";
 }
 
-// Execute
 $stmt = $verbindung->prepare($sql);
+if (!$stmt) {
+    echo json_encode(["error" => "SQL Prepare Error", "details" => $verbindung->error]);
+    exit();
+}
+
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
 }
+
 $stmt->execute();
 $result = $stmt->get_result();
-
 $data = [];
+
 while ($row = $result->fetch_assoc()) {
     $data[] = [
-        'name' => $row['name'],    // Contains either Location or Gender
-        'year' => (int) $row['Jahr'],
-        'value' => (int) $row['total_wert']
+        "name" => $row['name'],
+        "jahr" => $row['Jahr'], 
+        "value" => (int)$row['value']
     ];
 }
 
 echo json_encode($data);
-
-$stmt->close();
-$verbindung->close();
-?>

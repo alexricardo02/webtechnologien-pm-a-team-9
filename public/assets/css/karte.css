@@ -15,7 +15,8 @@ html, body {
 }
 
 .dashboard-row {
-    display: flex;          
+    display: flex;
+    flex-wrap: wrap;        /* Erlaubt das Umbrechen auf kleinen Screens */          
     gap: 30px;               /* Gap between map and card */
     align-items: flex-start;    /* Makes both boxes the same height */
     margin-bottom: 30px;

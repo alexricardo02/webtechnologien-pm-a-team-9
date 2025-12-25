@@ -19,24 +19,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Master Funktion: Lädt Daten und rendert Karte + Grafiken
     const loadAndRender = async () => {
-        // 1. Aktuelle Filterwerte holen
         const filters = getCurrentFilters();
-
-        // 2. Sicherstellen, dass wir den GeoJSON base haben (nur beim ersten Mal herunterladen)
         await DataManager.initGeo();
 
-        // 3. Filterte Daten an den Server anfragen
+        // Daten für Karte und Top/Bottom-Listen (reagiert auf den Jahres-Filter)
         const dataState = await DataManager.fetchFilteredData(filters);
 
+        // Daten speziell gruppiert nach Straftat (für den einfachen Vergleichschart)
+        const straftatParams = new URLSearchParams(filters);
+        straftatParams.append('groupBy', 'straftat');
+        const straftatRes = await fetch(`includes/api_opfer.php?${straftatParams.toString()}`);
+        const straftatData = await straftatRes.json();
+
         if (dataState) {
-            // 4. Karte aktualisieren (wenn die Funktion existiert)
-            if (window.initMap) {
-                window.initMap(dataState.geoJSON, dataState.opferIndex);
+            // Karte und Standard-Charts
+            if (window.initMap) window.initMap(dataState.geoJSON, dataState.opferIndex);
+            if (window.initDashboardCharts) window.initDashboardCharts(dataState.rawData);
+    
+            // Der einfache Vergleichschart (reagiert auf den Jahres-Filter)
+            if (window.initCrimeComparisonChart) {
+                window.initCrimeComparisonChart(straftatData);
             }
 
-            // 5. Grafiken aktualisieren (falls die Funktion in raumdimension_chart.js existiert)
-            if (window.initDashboardCharts) {
-                window.initDashboardCharts(dataState.rawData);
+            // Der Stacked Chart (ignoriert das gewählte Jahr intern, um immer 2023/24 zu zeigen)
+            if (window.initCrimeStackedChart) {
+                window.initCrimeStackedChart(filters);
             }
         }
     };

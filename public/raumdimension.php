@@ -1,11 +1,11 @@
 <?php
 $straftat_hauptkategorien = [
   "Alle Straftaten" => "",
-  "Straftaten insgesamt" => "Straftaten insgesamt",
+  "Insgesamt" => "Insgesamt",
   "Tötung & Körperverletzung" => "Tötung & Körperverletzung",
   "Sexualdelikte" => "Sexualdelikte",
-  "Diebstahl" => "Diebstahl",
-  "Raub & Erpressung" => "Raub & Erpressung"
+  "Raubdelikte" => "Raubdelikte",
+  "Widerstand & Angriff" => "Widerstand & Angriff"
 ];
 ?>
 <!DOCTYPE html>
@@ -15,29 +15,30 @@ $straftat_hauptkategorien = [
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Raumdimension</title>
+  
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   
   <script src="assets/js/raumdimension_chart.js" defer></script>
   <script src="gender_chart.js" defer></script>
-
-  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/crime_comparison_chart.js" defer></script> <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/crime_stacked_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/header.css">
   <link rel="stylesheet" href="assets/css/karte.css">
   <link rel="stylesheet" href="assets/css/kpi.css">
   <link rel="stylesheet" href="assets/css/filter.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
+  
   <script src="assets/js/centralDataManager.js" defer></script>
   <script src="kpi2023.js" defer></script>
   <script src="kpi2024.js" defer></script>
   <script src="assets/js/main.js" defer></script>
-
 </head>
 
 <body>
@@ -48,8 +49,8 @@ $straftat_hauptkategorien = [
       <h2>Dashboard</h2>
       <p class="subtitle">Kriminalitätsstatistik & Datenanalyse</p>
     </header>
-    <section class="controls-section">
 
+    <section class="controls-section">
       <div class="dashboard-card filter-card">
         <h3 style="margin: 0; padding-right: 20px; border-right: 1px solid #eee;">Filter</h3>
         <div class="filter-row-container">
@@ -74,7 +75,7 @@ $straftat_hauptkategorien = [
             <select id="filter-straftat" class="styled-select">
               <?php
               foreach ($straftat_hauptkategorien as $label => $value) {
-                echo "<option value=\"" . htmlspecialchars(strtolower($value)) . "\">" . htmlspecialchars($label) . "</option>";
+                echo "<option value=\"" . htmlspecialchars($value) . "\">" . htmlspecialchars($label) . "</option>";
               }
               ?>
             </select>
@@ -83,6 +84,7 @@ $straftat_hauptkategorien = [
         </div>
       </div>
     </section>
+
     <section class="kpi-grid">
       <div class="kpi-card kpi-2023">
         <div class="card-header">
@@ -107,7 +109,6 @@ $straftat_hauptkategorien = [
     </section>
 
     <div class="dashboard-row" style="display: flex; gap: 20px; margin-bottom: 20px;">
-      
       <div class="dashboard-card map-card" style="flex: 1; min-width: 0;">
         <?php include "includes/karte.php"; ?>
       </div>
@@ -117,11 +118,29 @@ $straftat_hauptkategorien = [
             <canvas id="genderChart"></canvas>
         </div>
       </div>
+    </div>
 
+    <div class="dashboard-row" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+      <div class="dashboard-card chart-card" style="flex: 1; min-width: 450px;">
+        <div class="chart-header">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Top 5 Straftat-Kategorien (Gesamt)</h3>
+        </div>
+        <div style="height: 350px; position: relative;">
+            <canvas id="crimeComparisonChart"></canvas>
+        </div>
+      </div>
+
+      <div class="dashboard-card chart-card" style="flex: 1; min-width: 450px;">
+        <div class="chart-header">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Vergleich 2023 vs. 2024 (Gestapelt)</h3>
+        </div>
+        <div style="height: 350px; position: relative;">
+            <canvas id="crimeStackedChart"></canvas>
+        </div>
+      </div>
     </div>
 
     <div class="dashboard-row" style="display: flex; gap: 20px; margin-bottom: 20px;">
-      
       <div class="dashboard-card chart-card" style="flex: 1; min-width: 0;">
         <div class="chart-placeholder">
           <canvas id="top5chart"></canvas>
@@ -133,14 +152,12 @@ $straftat_hauptkategorien = [
           <canvas id="bottom5chart"></canvas>
         </div>
       </div>
-
     </div>
 
     <div class="dashboard-row">
       <div class="dashboard-card chart-card" style="width: 100%; flex: 1;">
         <div id="limitWarning" class="alert-info-mini" style="display: none;">
-          <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen
-          angezeigt.
+          <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen angezeigt.
         </div>
         <div class="chart-placeholder">
           <canvas id="opferNachLandkreisenBis10Chart"></canvas>
@@ -150,5 +167,4 @@ $straftat_hauptkategorien = [
 
   </main>
 </body>
-
 </html>

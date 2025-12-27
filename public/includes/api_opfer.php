@@ -18,6 +18,8 @@ if ($groupBy === 'gender') {
     $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 } elseif ($groupBy === 'straftat') {
     $sql = "SELECT Straftat_Hauptkategorie as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+} elseif ($groupBy === 'altersgruppe') { // <-- NEU: Logik für Altersgruppen
+    $sql = "SELECT Altersgruppe as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 } else {
     $sql = "SELECT Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 }
@@ -47,6 +49,8 @@ if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";
 } elseif ($groupBy === 'straftat') {
     $sql .= " GROUP BY Straftat_Hauptkategorie, Jahr";
+} elseif ($groupBy === 'altersgruppe') { // <-- NEU: Gruppierung nach Alter
+    $sql .= " GROUP BY Altersgruppe, Jahr";
 } else {
     $sql .= " GROUP BY Stadt_Landkreis, Jahr";
 }

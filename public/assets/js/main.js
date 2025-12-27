@@ -31,10 +31,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const straftatRes = await fetch(`includes/api_opfer.php?${straftatParams.toString()}`);
         const straftatData = await straftatRes.json();
 
+        const ageParams = new URLSearchParams(filters);
+        ageParams.append('groupBy', 'altersgruppe'); // Important for age chart
+        const ageRes = await fetch(`includes/api_opfer.php?${ageParams.toString()}`);
+        const ageData = await ageRes.json();
+
         if (dataState) {
             // Karte und Standard-Charts
             if (window.initMap) window.initMap(dataState.geoJSON, dataState.opferIndex);
             if (window.initDashboardCharts) window.initDashboardCharts(dataState.rawData);
+
+            // Der Altersverteilungs-Chart
+            if (window.initAgeChart) {
+                window.initAgeChart(ageData);
+            }
     
             // Der einfache Vergleichschart (reagiert auf den Jahres-Filter)
             if (window.initCrimeComparisonChart) {

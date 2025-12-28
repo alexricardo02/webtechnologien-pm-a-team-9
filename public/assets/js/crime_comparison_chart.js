@@ -59,7 +59,7 @@ async function updateCrimeComparisonChart(filters = {}) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: { display: true, text: 'Opferzahlen nach Straftat' }
+                    title: { display: true, text: 'Opferzahlen nach Straftat', font: { size: 16 } },
                 }
             }
         });

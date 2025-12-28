@@ -15,6 +15,12 @@ body {
     background-color: var(--bg-color);
 }
 
+.dashboard-layout {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
 .dashboard-wrapper {
     max-width: 1600px;
     width: 95%;
@@ -24,13 +30,13 @@ body {
 
 /* --- 1. Header Section (Massive & Clear) --- */
 .dashboard-header {
-    text-align: center;
+    text-align: left;
     margin-bottom: 0;
     margin-top: 0;
 }
 
 .dashboard-header h2 {
-    font-size: 3rem;
+    font-size: 2.5rem;
     /* Increased from 3rem */
     font-weight: 800;
     color: var(--primary-color);
@@ -40,7 +46,7 @@ body {
 }
 
 .subtitle {
-    font-size: 1rem;
+    font-size: 0.75rem;
     /* Increased from 1.2rem */
     color: #7f8c8d;
     margin-top: 5px;

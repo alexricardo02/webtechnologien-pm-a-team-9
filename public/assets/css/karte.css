@@ -2,12 +2,10 @@ html, body {
     padding-top: 30px;
 }
 
-#dashboard-container {       /* !Übersetzung bitte! */
-    max-width: 1600px;      
-    margin: 0 auto;          /* container centered */
-    padding: 0 20px 10px 20px;
-    padding-top: 10px;
-    gap: 30px;
+#dashboard-container {
+    flex-grow: 1;
+    padding: 30px;
+    overflow-y: auto; /* Permite scroll solo en esta parte */
 }
 
 .page-header {

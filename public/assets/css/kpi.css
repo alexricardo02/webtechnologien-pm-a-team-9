@@ -25,36 +25,38 @@ body {
 .kpi-grid {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     /* Cards will never be smaller than 550px wide */
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    gap: 10px;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     width: 100%;
     flex-wrap: wrap;
 }
 
+
 .kpi-card {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 20px;
-    /* Spacious padding */
-    box-shadow: var(--shadow-soft);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-top: 4px solid transparent;
-    /* Thicker top border */
+    
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    min-width: 300px;
-    max-width: 300px;
-    min-height: auto;
-    text-align: center;
-    flex: 0 1 auto;
-    width: auto;
-    height: 100%;
+    justify-content: space-between;
+    
+    /* Aumentamos el padding para que no toque los bordes */
+    padding: 12px 25px;
+    
+    /* Añadimos un gap para que el grupo de texto y el número no se toquen */
+    gap: 15px;
+    
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-soft);
+    
+    /* Un ancho mínimo un poco más generoso para que no se colapse */
+    min-width: 240px;
+    height: 65px; /* Subimos un poco la altura de 50px a 65px */
+    border-left: 4px solid transparent;
 }
 
 .kpi-2023 {
@@ -72,10 +74,18 @@ body {
 
 /* --- 4. Card Content (Readability Boost) --- */
 
+.card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Espacio entre el badge (2023) y el título (GESAMTOPFER) */
+    gap: 4px; 
+}
+
 /* The "Gesamtopfer" Title */
 .card-header h3,
 .kpi-card h3 {
-    font-size: 0.95rem;
+    font-size: 0.7rem;
     /* Increased from 1.5rem */
     font-weight: 600;
     color: #555;
@@ -83,6 +93,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin: 0 0 5px 0;
+    white-space: nowrap;
 }
 
 /* The Year Tags (2023/2024) */
@@ -104,23 +115,20 @@ body {
 
 /* The Main Number */
 .kpi-number {
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-size: 1.4rem;
     /* MASSIVE (was 6rem) */
     font-weight: 700;
     color: var(--primary-color);
-    margin: 5px 0;
+    margin: 0;
     line-height: 1;
     word-break: break-all;
     font-feature-settings: "tnum";
+    font-weight: 800;
 }
 
+
 /* The Trend / Bottom Text */
-.kpi-trend {
-    font-size: 0.8rem;
-    /* Increased from 1.1rem */
-    color: #888;
-    margin-top: 5px;
-}
+.kpi-trend { display: none; }
 
 /* --- Mobile Adjustments --- */
 @media (max-width: 900px) {

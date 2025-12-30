@@ -106,6 +106,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- EVENTS ---
 
+  // Aktive Filter Löschen
+  const resetBtn = document.getElementById("reset-filters");
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        // 1. Alle Dropdowns zurücksetzen
+        const dropdowns = ["filter-jahr", "filter-geschlecht", "filter-straftat", "filter-altersgruppe"];
+        dropdowns.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = ""; 
+        });
+
+        // 2. Landkreise Auswahl zurücksetzen
+        if (window.selectedLandkreise) {
+            window.selectedLandkreise.clear();
+        }
+
+        if (typeof renderTags === "function") {
+            renderTags();
+        }
+
+        // 3. Alles neuladen und rendern
+        loadAndRender();
+    });
+}
+
   // 1. Initial Load
   window.refreshDashboard = () => loadAndRender();
   window.refreshDashboard();

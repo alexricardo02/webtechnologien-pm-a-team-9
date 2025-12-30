@@ -78,7 +78,15 @@ const DataManager = {
             console.error("Error in fetchFilteredData:", err);
             return null;
         }
-    }
+    },
 
-    
+
+    landkreisSuchFunktion:  function (data, selectedLandkreise) {
+        if (!selectedLandkreise || selectedLandkreise.size === 0) return data;
+
+        return data.filter(item => {
+            const name = (item.name || "").toLowerCase().trim();
+            return Array.from(selectedLandkreise).some(s => s.toLowerCase().trim() === name);
+        }) 
+    }
 };

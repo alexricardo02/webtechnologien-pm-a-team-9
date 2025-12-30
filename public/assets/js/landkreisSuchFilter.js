@@ -24,7 +24,6 @@ searchInput.addEventListener("input", function () {
   if (names.includes(val)) {
     addLandkreis(val);
     this.value = "";
-    errorMsg.style.display = "none";
   } else {
     const hasPotentialMatch = names.some((n) =>
       n.toLowerCase().startsWith(val.toLowerCase())
@@ -33,14 +32,24 @@ searchInput.addEventListener("input", function () {
     if (hasPotentialMatch) {
       errorMsg.style.display = "none";
     } else {
+      errorMsg.innerHTML = "Landkreis nicht gefunden";
       errorMsg.style.display = "block";
     }
   }
 });
 
 function addLandkreis(name) {
+  const errorMsg = document.getElementById("search-error");
+  if (selectedLandkreise.size >= 10 && !selectedLandkreise.has(name)) {
+    errorMsg.innerHTML = "Max. 10 Landkreise erlaubt";
+    errorMsg.style.display = "block";
+    return;
+  }
+  errorMsg.style.display = "none";
+
   selectedLandkreise.add(name);
   renderTags();
+
   if (window.refreshDashboard) window.refreshDashboard();
 }
 
@@ -64,7 +73,9 @@ function renderTags() {
 }
 
 function removeLandkreis(name) {
+    const errorMsg = document.getElementById("search-error");
   selectedLandkreise.delete(name);
+  if (selectedLandkreise.size < 10) errorMsg.style.display = "none";
   renderTags();
   if (window.refreshDashboard) window.refreshDashboard();
 }

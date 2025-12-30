@@ -8,6 +8,13 @@ const DataManager = {
         requestCache: {}
     },
 
+    getLandkreisNames: function() {
+        if (!this.state.geoJSON) return [];
+        // wir extrahieren alle eindeutigen Landkreisnamen aus dem GeoJSON
+        const names = this.state.geoJSON.features.map(f => f.properties.NAME_3);
+        return [...new Set(names)].sort();
+    },
+
 
     initGeo: async function () {
         if (this.state.geoJSON) return this.state.geoJSON;
@@ -64,12 +71,14 @@ const DataManager = {
             };
 
             this.state.requestCache[cacheKey] = resultState;
-
             // 4. Alles ausgeben
             return resultState;
+            
         } catch (err) {
-            console.error("Error en fetchFilteredData:", err);
+            console.error("Error in fetchFilteredData:", err);
             return null;
         }
     }
+
+    
 };

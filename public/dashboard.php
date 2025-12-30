@@ -41,6 +41,7 @@ $straftat_hauptkategorien = [
   <script src="assets/js/kpi2024.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/age_chart.js" defer></script>
+  <script srC="assets/js/landkreisSuchFilter.js" defer></script>
 </head>
 
 <body>
@@ -84,6 +85,17 @@ $straftat_hauptkategorien = [
             }
             ?>
           </select>
+        </div>
+
+        <div class="filter-group-vertical">
+          <label for="filter-geschlecht">Landkreis</label>
+          <div class="search-wrapper">
+            <input type="text" id="search-landkreis" class="styled-select" placeholder="z. B. Kiel" list="landkreis-list">
+            <button id="clear-search" class="clear-btn" title="Suche löschen" style="display: none;">&times;</button>
+            <datalist id="landkreis-list">
+              </datalist>
+          </div>
+          <small id="search-error" class="error-msg" style="display: none;">Landkreis nicht gefunden</small>
         </div>
 
         <button id="apply-filters" class="button-primary-block">Anwenden</button>

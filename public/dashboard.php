@@ -35,6 +35,7 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/filter.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
+  <link rel="stylesheet" href="assets/css/landkreisFilterTag.css">
 
   <script src="assets/js/centralDataManager.js" defer></script>
   <script src="assets/js/kpi2023.js" defer></script>
@@ -99,6 +100,10 @@ $straftat_hauptkategorien = [
         </div>
 
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
+
+        <div id="selected-tags-container">
+            
+        </div>
       </div>
     </aside>
 

@@ -20,25 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const filters = getCurrentFilters();
     await DataManager.initGeo();
 
-    // Daten für Karte und Top/Bottom-Listen (reagiert auf den Jahres-Filter)
-    //const dataState = await DataManager.fetchFilteredData(filters);
-
     // Daten speziell gruppiert nach Straftat (für den einfachen Vergleichschart)
     const straftatParams = new URLSearchParams(filters);
     straftatParams.append("groupBy", "straftat");
 
-    //const straftatRes = await fetch(`includes/api_opfer.php?${straftatParams.toString()}`);
-    //const straftatData = await straftatRes.json();
-
     const ageParams = new URLSearchParams(filters);
     ageParams.append("groupBy", "altersgruppe"); // Important for age chart
-    //const ageRes = await fetch(`includes/api_opfer.php?${ageParams.toString()}`);
-    //const ageData = await ageRes.json();
 
     const genderParams = new URLSearchParams(filters);
     genderParams.append("groupBy", "gender");
-    //const genderRes = await fetch(`includes/api_opfer.php?${genderParams.toString()}`);
-    //const genderData = await genderRes.json();
 
     // wir löschen den Jahres-Filter für den Stacked Chart, um immer 2023 vs 2024 zu zeigen
     const stackedParams = new URLSearchParams(filters);

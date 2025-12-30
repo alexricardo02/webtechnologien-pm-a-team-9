@@ -74,10 +74,18 @@
             var currentGeoJsonLayer = L.geoJSON(geoJSONData, {
                 style: style, // Leaflet applies this function to EACH shape automatically
                 onEachFeature: function (feature, layer) {
-                    layer.bindPopup(
-                        "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
-                        "<br>Gesamt Opfer: " + feature.properties.total_opfer
-                    );
+
+                    if(feature.properties.total_opfer === 0){
+                        layer.bindPopup(
+                            "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
+                            "<br>Gesamt Opfer: keine Daten"
+                        );
+                    } else {
+                        layer.bindPopup(
+                            "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
+                            "<br>Gesamt Opfer: " + feature.properties.total_opfer
+                        );
+                    }
 
                     layer.on({
                         mouseover: function (e) {

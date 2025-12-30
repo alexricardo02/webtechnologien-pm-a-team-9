@@ -1,0 +1,48 @@
+html, body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    padding-top: 64px;
+}
+
+.landkreis-tag {
+    background-color: #3498db;
+    fill-opacity: 0.7;
+    padding: 8px 12px;
+    border-radius: 6px; /* Un poco menos redondeado para parecer lista */
+    margin-bottom: 8px;
+    color: white;
+    /* CAMBIO CLAVE: Comportamiento de lista vertical */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    font-size: 0.85rem;
+    width: 100%; /* Ocupa todo el ancho del aside */
+    box-sizing: border-box;
+    user-select: none;
+    cursor: default;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.landkreis-tag:hover {
+    filter: brightness(1.1);
+}
+.landkreis-tag .remove-btn:hover{
+    color: #ffcccc;
+    transform: scale(1.2);
+}
+
+.remove-btn {
+    cursor: pointer !important;
+    display: inline-flex;
+    font-weight: bold;
+    padding: 0 8px;
+    font-size: 1.1rem;
+    line-height: 1;
+    z-index: 10;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+}
+
+.remove-btn:hover {
+    color: #ffcccc; /* Cambio de color para resaltar peligro al borrar */
+}

@@ -1,4 +1,4 @@
-let selectedLandkreise = new Set();
+window.selectedLandkreise = new Set();
 
 let names = [];
 

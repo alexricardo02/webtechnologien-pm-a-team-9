@@ -6,17 +6,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Filtern der aktuellen Filterwerte aus den Dropdowns
   const getCurrentFilters = () => {
+    const selectedLandkreise = window.selectedLandkreise ? Array.from(window.selectedLandkreise) : [];
+
+    const cleanLandkreise = selectedLandkreise.map(name => DataManager.normalizeName(name));
+
     return {
       jahr: document.getElementById("filter-jahr")?.value || "",
       geschlecht: document.getElementById("filter-geschlecht")?.value || "",
       straftat: document.getElementById("filter-straftat")?.value || "",
-      landkreis: document.getElementById("filter-landkreis")?.value || "",
+      landkreis: cleanLandkreise.join(","),
       altersgruppe: document.getElementById("filter-altersgruppe")?.value || "",
     };
   };
 
   // Master Funktion: Lädt Daten und rendert Karte + Grafiken
   const loadAndRender = async () => {
+    const selectedLandkreise = window.selectedLandkreise || new Set();
     const filters = getCurrentFilters();
     await DataManager.initGeo();
 
@@ -53,11 +58,21 @@ document.addEventListener("DOMContentLoaded", () => {
       ]);
 
       if (dataState) {
+
+    
+        const fRawData = DataManager.landkreisSuchFunktion(dataState.rawData, selectedLandkreise);
+        const fIndex = {};
+        fRawData.forEach(item => {
+            const name = (item.name || "").toLowerCase().trim();
+            fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
+        });
+
       // Karte und Standard-Charts
       if (window.initMap)
-        window.initMap(dataState.geoJSON, dataState.opferIndex);
+        window.initMap(dataState.geoJSON, fIndex);
+
       if (window.initDashboardCharts)
-        window.initDashboardCharts(dataState.rawData);
+        window.initDashboardCharts(fRawData);
 
       // Der Altersverteilungs-Chart
       if (window.initAgeChart) {
@@ -87,8 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- EVENTS ---
 
   // 1. Initial Load
-  loadAndRender();
-
+  window.refreshDashboard = () => loadAndRender();
+  window.refreshDashboard();
   // 2. Button "Filter anwenden"
   const applyBtn = document.getElementById("apply-filters"); // Button muss diese ID haben
   if (applyBtn) {

@@ -40,6 +40,10 @@
 
         window.initMap = function (geoJSONData, opferIndex) {
 
+            map.invalidateSize();
+
+            var bounds = L.latLngBounds();
+            var hasSelection = false;
 
             // Now we loop through the GeoJSON features and add the total Opfer
             geoJSONData.features.forEach(function (feature) {
@@ -75,7 +79,7 @@
                 style: style, // Leaflet applies this function to EACH shape automatically
                 onEachFeature: function (feature, layer) {
 
-                    if(feature.properties.total_opfer === 0){
+                    if (feature.properties.total_opfer === 0) {
                         layer.bindPopup(
                             "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
                             "<br>Gesamt Opfer: keine Daten"
@@ -103,9 +107,32 @@
                         }
                     });
 
+                    var originalName = feature.properties.NAME_3;
+                    var normName = DataManager.normalizeName(originalName);
+
+                    // Wir verifizieren, ob dieser Landkreis ausgewählt ist
+                    if (window.selectedLandkreise && window.selectedLandkreise.size > 0) {
+                        // Normalisierte Liste der ausgewählten Landkreise
+                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataManager.normalizeName(s));
+
+                        if (selectionList.includes(normName)) {
+                            //  Dieser Landkreis ist ausgewählt, also erweitern wir die Bounds
+                            bounds.extend(layer.getBounds());
+                            hasSelection = true;
+                        }
+                    }
                 }
             }).addTo(map);
 
+            if (hasSelection) {
+                map.fitBounds(bounds, {
+                    padding: [50, 50],
+                    maxZoom: 10
+                });
+            } else {
+
+                map.setView([51.1657, 10.4515], 6);
+            }
 
             // --- WICHTIG: vorherige LEGEND löschen ---
             if (currentLegend) {
@@ -113,7 +140,6 @@
             }
 
             // Legend
-
             var legend = L.control({ position: 'topright' });
             legend.onAdd = function (map) {
                 var div = L.DomUtil.create('div', 'info legend'),

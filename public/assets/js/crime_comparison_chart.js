@@ -6,36 +6,36 @@ const renderCrimeComparisonChart = (chartData) => {
 
     try {
 
-    chartData.forEach(item => {
+        chartData.forEach(item => {
             if (!item.name) return;
-            
+
             // Namen vereinheitlichen (Trimmen und Großschreiben für den Vergleich)
             const key = item.name.trim().toLowerCase();
             const val = parseInt(item.value || 0);
-            
+
             if (totals[key]) {
                 totals[key].value += val;
             } else {
                 totals[key] = {
-                    originalName: item.name.trim(), 
+                    originalName: item.name.trim(),
                     value: val
                 };
             }
         });
 
-    const finalLabels = [];
-    const finalValues = [];
+        const finalLabels = [];
+        const finalValues = [];
 
-    for (let key in totals) {
+        for (let key in totals) {
             finalLabels.push(totals[key].originalName);
             finalValues.push(totals[key].value);
         }
 
-    if (window.crimeChartInstance) {
-        window.crimeChartInstance.destroy();
-    }
+        if (window.crimeChartInstance) {
+            window.crimeChartInstance.destroy();
+        }
 
-    window.crimeChartInstance = new Chart(ctx, {
+        window.crimeChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: finalLabels,

@@ -15,7 +15,6 @@ body {
     background-color: var(--bg-color);
 }
 
-
 /* --- 2. Controls Section (The Filter) --- */
 .controls-section {
     display: flex;
@@ -110,39 +109,38 @@ body {
     gap: 5px;
 }
 
-
 #selected-tags-container {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     margin-top: 10px;
     gap: 4px;
     /* SCROLL LOGIC */
-    max-height: 300px; 
-    overflow-y: auto;  
+    max-height: 300px;
+    overflow-y: auto;
     padding-right: 15px;
 }
 
 #selected-tags-container::-webkit-scrollbar {
     width: 4px;
 }
+
 #selected-tags-container::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 10px;
 }
-
 
 .sidebar-filters {
     display: flex;
     flex-direction: column;
     position: sticky;
     top: 60px;
-    width: 240px; 
+    width: 240px;
     min-width: 240px;
     background: var(--card-bg);
     border-right: 1px solid #e0e0e0;
     padding: 15px 15px;
     height: calc(100vh - 60px);
-    box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.03);
     overflow-y: auto;
 }
 
@@ -209,7 +207,7 @@ body {
 
 .clear-btn {
     position: absolute;
-    right: 35px; 
+    right: 35px;
     background: none;
     border: none;
     font-size: 1.2rem;

@@ -37,25 +37,18 @@ body {
 
 
 .kpi-card {
-    
+
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    
-    /* Aumentamos el padding para que no toque los bordes */
     padding: 12px 25px;
-    
-    /* Añadimos un gap para que el grupo de texto y el número no se toquen */
     gap: 15px;
-    
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: var(--shadow-soft);
-    
-    /* Un ancho mínimo un poco más generoso para que no se colapse */
     min-width: 240px;
-    height: 65px; /* Subimos un poco la altura de 50px a 65px */
+    height: 65px;
     border-left: 4px solid transparent;
 }
 
@@ -78,8 +71,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    /* Espacio entre el badge (2023) y el título (GESAMTOPFER) */
-    gap: 4px; 
+    gap: 4px;
 }
 
 /* The "Gesamtopfer" Title */
@@ -128,7 +120,9 @@ body {
 
 
 /* The Trend / Bottom Text */
-.kpi-trend { display: none; }
+.kpi-trend {
+    display: none;
+}
 
 /* --- Mobile Adjustments --- */
 @media (max-width: 900px) {

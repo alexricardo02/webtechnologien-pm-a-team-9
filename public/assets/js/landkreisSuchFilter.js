@@ -73,7 +73,7 @@ function renderTags() {
 }
 
 function removeLandkreis(name) {
-    const errorMsg = document.getElementById("search-error");
+  const errorMsg = document.getElementById("search-error");
   selectedLandkreise.delete(name);
   if (selectedLandkreise.size < 10) errorMsg.style.display = "none";
   renderTags();

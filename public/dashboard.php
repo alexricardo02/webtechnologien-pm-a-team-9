@@ -93,7 +93,7 @@ $straftat_hauptkategorien = [
           <div class="search-wrapper">
             <input type="text" id="search-landkreis" class="styled-select" placeholder="z. B. Kiel" list="landkreis-list">
             <datalist id="landkreis-list">
-              </datalist>
+            </datalist>
           </div>
           <small id="search-error" class="error-msg" style="display: none;">Landkreis nicht gefunden</small>
         </div>
@@ -102,7 +102,7 @@ $straftat_hauptkategorien = [
         <button id="reset-filters" class="button-secondary-block">Filter zurücksetzen</button>
 
         <div id="selected-tags-container">
-            
+
         </div>
       </div>
     </aside>
@@ -206,9 +206,7 @@ $straftat_hauptkategorien = [
 
     </main>
 
-
   </div>
-
 
 </body>
 

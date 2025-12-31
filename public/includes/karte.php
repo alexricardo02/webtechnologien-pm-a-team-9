@@ -1,105 +1,115 @@
 <div id="map">
     <script>
-
-
-        // load map
+        // 1. Map initialisierung
         var map = L.map('map').setView([51.1657, 10.4515], 6);
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
 
-        var currentLegend = null;       // Active Legend
-        var currentGeoJsonLayer = null; // Poligon Layer
+        var currentLegend = null;       
+        var currentGeoJsonLayer = null; 
 
-        // map styling
-        function style(feature) {
-            return {
-                fillColor: getColor(feature.properties.total_opfer),
-                weight: 0.5,
-                opacity: 1,
-                color: 'white',
-                dashArray: '3',
-                fillOpacity: 0.8
+        // 2. Leyend Funktion 
+        function updateDynamicLegend(values, colorScale, limits) {
+            // Leyend cleanup
+            if (currentLegend) {
+                map.removeControl(currentLegend);
+            }
+
+            if (!values || values.length === 0 || !colorScale || !limits) return;
+
+            currentLegend = L.control({ position: 'topright' });
+
+            currentLegend.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'info legend');
+                div.style.padding = '10px 12px';
+                div.style.borderRadius = '8px';
+                div.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                div.style.boxShadow = '0 0 15px rgba(0,0,0,0.1)';
+                div.style.backdropFilter = 'blur(10px)';
+                div.style.lineHeight = '1.5';
+
+                div.innerHTML = '<strong style="display:block; margin-bottom:5px;">Opferzahlen</strong>';
+
+                for (var i = 0; i < limits.length - 1; i++) {
+                    var from = Math.round(limits[i]);
+                    var to = Math.round(limits[i + 1]);
+                    var color = colorScale(from + (to - from) / 2).hex();
+
+                    div.innerHTML +=
+                        '<div style="display:flex; align-items:center; gap:8px;">' +
+                        '<i style="background:' + color + '; width: 18px; height: 18px; border-radius:3px; opacity: 0.8"></i> ' +
+                        '<span>' + from.toLocaleString('de-DE') + (to ? ' &ndash; ' + to.toLocaleString('de-DE') : '+') + '</span>' +
+                        '</div>';
+                }
+                return div;
             };
+            currentLegend.addTo(map);
         }
 
-        // color scale
-        function getColor(d) {
-            return d > 150000 ? '#800026' :  // very high
-                d > 100000 ? '#BD0026' :
-                    d > 80000 ? '#E31A1C' :
-                        d > 50000 ? '#FC4E2A' :
-                            d > 25000 ? '#FD8D3C' :
-                                d > 10000 ? '#FEB24C' :
-                                    d > 5000 ? '#FED976' :
-                                        d > 0 ? '#FFEDA0' : // low
-                                            '#FFFFFF';
-        }
-
-
+        // 3. Main Funktion
         window.initMap = function (geoJSONData, opferIndex) {
-
             map.invalidateSize();
 
-            var bounds = L.latLngBounds();
-            var hasSelection = false;
+            const values = Object.values(opferIndex).filter(v => v > 0);
+            let colorScale = null;
+            let limits = null;
 
-            // Now we loop through the GeoJSON features and add the total Opfer
+            if (values.length > 0) {
+                // Scale wird mit quantilen erstellt
+                limits = chroma.limits(values, 'quantile', 7); 
+                colorScale = chroma.scale('YlOrRd').classes(limits);
+            }
+
+            function dynamicGetColor(d) {
+                if (!d || d === 0) return '#FFFFFF';
+                return colorScale ? colorScale(d).hex() : '#FFEDA0';
+            }
+
+            // Namen prozessieren und Werte den GeoJSON-Eigenschaften zuweisen
             geoJSONData.features.forEach(function (feature) {
-
                 var landkreisName = feature.properties.NAME_3.toLowerCase().trim();
-
                 var amountOfOpfer = 0;
 
-                // Search in the index
                 if (opferIndex.hasOwnProperty(landkreisName)) {
                     amountOfOpfer = opferIndex[landkreisName];
-                }
-                else if (landkreisName.includes("städte")) {
+                } else if (landkreisName.includes("städte")) {
                     var correctedName = landkreisName.replace(" städte", "").trim();
                     if (opferIndex.hasOwnProperty(correctedName)) {
                         amountOfOpfer = opferIndex[correctedName];
                     }
                 }
-
-                // We store the total inside the map to use it when painting
                 feature.properties.total_opfer = amountOfOpfer;
             });
-
 
             if (currentGeoJsonLayer) {
                 map.removeLayer(currentGeoJsonLayer);
             }
 
+            var bounds = L.latLngBounds();
+            var hasSelection = false;
 
-
-            // Finally, we add the GeoJSON to the map. We store the layer in a variable to reset the style on mouseout
-            var currentGeoJsonLayer = L.geoJSON(geoJSONData, {
-                style: style, // Leaflet applies this function to EACH shape automatically
+            currentGeoJsonLayer = L.geoJSON(geoJSONData, {
+                style: function (f) {
+                    return {
+                        fillColor: dynamicGetColor(f.properties.total_opfer),
+                        weight: 0.5,
+                        opacity: 1,
+                        color: 'white',
+                        fillOpacity: 0.8
+                    };
+                },
                 onEachFeature: function (feature, layer) {
-
-                    if (feature.properties.total_opfer === 0) {
-                        layer.bindPopup(
-                            "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
-                            "<br>Gesamt Opfer: keine Daten"
-                        );
-                    } else {
-                        layer.bindPopup(
-                            "Landkreis: " + "<strong>" + feature.properties.NAME_3 + "</strong>" +
-                            "<br>Gesamt Opfer: " + feature.properties.total_opfer
-                        );
-                    }
+                    layer.bindPopup(
+                        "Landkreis: <strong>" + feature.properties.NAME_3 + "</strong><br>" +
+                        "Gesamt Opfer: " + (feature.properties.total_opfer > 0 ? feature.properties.total_opfer.toLocaleString('de-DE') : "keine Daten")
+                    );
 
                     layer.on({
                         mouseover: function (e) {
                             var layer = e.target;
-                            layer.setStyle({
-                                weight: 3,
-                                color: '#666',
-                                dashArray: '',
-                                fillOpacity: 0.7
-                            });
+                            layer.setStyle({ weight: 3, color: '#666', fillOpacity: 0.7 });
                             layer.bringToFront();
                         },
                         mouseout: function (e) {
@@ -107,16 +117,11 @@
                         }
                     });
 
-                    var originalName = feature.properties.NAME_3;
-                    var normName = DataManager.normalizeName(originalName);
-
-                    // Wir verifizieren, ob dieser Landkreis ausgewählt ist
+                    // Zoom logic
+                    var normName = DataManager.normalizeName(feature.properties.NAME_3);
                     if (window.selectedLandkreise && window.selectedLandkreise.size > 0) {
-                        // Normalisierte Liste der ausgewählten Landkreise
                         var selectionList = Array.from(window.selectedLandkreise).map(s => DataManager.normalizeName(s));
-
                         if (selectionList.includes(normName)) {
-                            //  Dieser Landkreis ist ausgewählt, also erweitern wir die Bounds
                             bounds.extend(layer.getBounds());
                             hasSelection = true;
                         }
@@ -124,54 +129,16 @@
                 }
             }).addTo(map);
 
-            if (hasSelection) {
-                map.fitBounds(bounds, {
-                    padding: [50, 50],
-                    maxZoom: 10
-                });
-            } else {
+            // Leyend aktualisieren
+            updateDynamicLegend(values, colorScale, limits);
 
+            // Zoom to selection or default
+            if (hasSelection) {
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+            } else {
                 map.setView([51.1657, 10.4515], 6);
             }
-
-            // --- WICHTIG: vorherige LEGEND löschen ---
-            if (currentLegend) {
-                map.removeControl(currentLegend);
-            }
-
-            // Legend
-            var legend = L.control({ position: 'topright' });
-            legend.onAdd = function (map) {
-                var div = L.DomUtil.create('div', 'info legend'),
-                    grades = [0, 5000, 10000, 25000, 50000, 80000, 100000, 150000, 200000]
-
-                // Legend div styling
-                div.style.padding = '6px 8px';
-                div.style.borderRadius = '5px';
-                div.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
-                div.style.backdropFilter = 'blur(10px)';
-
-                div.innerHTML += '<strong>Gesamt Opfer</strong><br>';
-
-                // loop through our density intervals and generate a label with a colored square for each interval
-                for (var i = 0; i < grades.length; i++) {
-
-                    var from = grades[i];
-                    var to = grades[i + 1];
-
-                    var color = getColor(from + 1);
-
-                    div.innerHTML +=
-                        '<i style="background:' + color + '; width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7"></i> ' +
-                        Math.round(from) + (to ? ' - ' + Math.round(to) + '<br>' : '+');
-                }
-
-                return div;
-            }
-
-            currentLegend = legend;
-            currentLegend.addTo(map);
-
+            
         };
     </script>
 </div>

@@ -19,13 +19,9 @@ const renderGenderChart = (chartData) => {
     const labels = Object.keys(genderSums);
     const dataValues = Object.values(genderSums);
 
-    // 2. Colors
     const colorMap = {
-        'männlich': '#3498DB', 
-        'maennlich': '#3498DB', 
-        'weiblich': '#E91E63', 
-        'unbekannt': '#95A5A6', 
-        'divers': '#9B59B6'    
+        'männlich': '#3498DB', 'maennlich': '#3498DB',
+        'weiblich': '#E91E63', 'unbekannt': '#95A5A6', 'divers': '#9B59B6'
     };
 
     const backgroundColors = labels.map(label => {
@@ -33,102 +29,82 @@ const renderGenderChart = (chartData) => {
         for (const [key, color] of Object.entries(colorMap)) {
             if (lowerLabel.includes(key)) return color;
         }
-        return '#34495E'; 
+        return '#34495E';
     });
 
+    // PLUGIN: Texto Central Escalable
     const centerTextPlugin = {
         id: 'centerText',
         afterDraw: function(chart) {
-            const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-            const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-            const ctx = chart.ctx;
-            
+            const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+
             ctx.save();
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // "GESAMT"
-            ctx.font = "normal 11px Arial, sans-serif";
-            ctx.fillStyle = "#999"; 
-            ctx.fillText("GESAMT", centerX, centerY - 12);
+            // "GESAMT" (Escala con el alto)
+            const fontSizeLabel = Math.max(height / 25, 10);
+            ctx.font = `normal ${fontSizeLabel}px Arial, sans-serif`;
+            ctx.fillStyle = "#999";
+            ctx.fillText("GESAMT", centerX, centerY - (fontSizeLabel * 0.8));
 
-            // Number
-            const fontSizeNum = Math.min(chart.chartArea.height / 8, 26); 
-            ctx.font = "bold " + fontSizeNum + "px Arial, sans-serif";
-            ctx.fillStyle = "#2c3e50"; 
-            
+            // Número (Escala con el alto)
+            const fontSizeNum = Math.max(height / 12, 16);
+            ctx.font = `bold ${fontSizeNum}px Arial, sans-serif`;
+            ctx.fillStyle = "#2c3e50";
             const textNum = totalCount.toLocaleString('de-DE');
-            ctx.fillText(textNum, centerX, centerY + 15);
+            ctx.fillText(textNum, centerX, centerY + (fontSizeNum * 0.5));
             
             ctx.restore();
         }
     };
 
-    // PERMANENT Outside Labels
+    // PLUGIN: Etiquetas Externas Inteligentes
     const permanentLabelsPlugin = {
         id: 'permanentLabels',
         afterDraw: function(chart) {
-            const ctx = chart.ctx;
+            // Si el gráfico es muy pequeño (móvil), no dibujamos etiquetas externas
+            // para evitar colisiones
+            if (chart.width < 380) return; 
+
+            const { ctx, chartArea: { left, right, top, bottom } } = chart;
             const meta = chart.getDatasetMeta(0);
-            
-            const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-            const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
 
             meta.data.forEach((element, index) => {
                 const value = chart.data.datasets[0].data[index];
-                
-                // Smart Filter: Only draw labels for slices > 1% to prevent overlapping mess
                 const percentVal = (value / totalCount);
-                if (percentVal < 0.01) return; 
+                if (percentVal < 0.02) return; // Ignorar porciones menores al 2%
 
-                // Prepare Text
-                let rawLabel = chart.data.labels[index];
-                // Spelling correction
-                let displayLabel = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
-                if(displayLabel.toLowerCase() === 'maennlich') displayLabel = 'Männlich';
-
-                const percentage = (percentVal * 100).toFixed(1) + '%';
-                const labelText = `${displayLabel}: ${value.toLocaleString('de-DE')} (${percentage})`;
-
-                // Calculate Position
                 const midAngle = element.startAngle + (element.endAngle - element.startAngle) / 2;
-                
-                // Position for the text (Outer Radius + Padding)
-                const padding = 25;
+                const padding = 20; 
                 const r = element.outerRadius + padding;
                 const x = centerX + Math.cos(midAngle) * r;
                 const y = centerY + Math.sin(midAngle) * r;
 
-                // Position for the line start
-                const lineStartRadius = element.outerRadius + 4;
+                const lineStartRadius = element.outerRadius + 2;
                 const lineStartX = centerX + Math.cos(midAngle) * lineStartRadius;
                 const lineStartY = centerY + Math.sin(midAngle) * lineStartRadius;
 
                 ctx.save();
-
-                // 1. Draw Connecting Line
+                // Línea de conexión
                 ctx.beginPath();
                 ctx.moveTo(lineStartX, lineStartY);
                 ctx.lineTo(x, y);
-                // Line matches slice color for a "Pro" look
                 ctx.strokeStyle = chart.data.datasets[0].backgroundColor[index];
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // 2. Draw Text
-                ctx.font = "bold 12px Arial, sans-serif"; // Clean, readable font
-                ctx.fillStyle = "#333"; // Dark Grey text
+                // Texto
+                const percentage = (percentVal * 100).toFixed(1) + '%';
+                ctx.font = "bold 11px Arial, sans-serif";
+                ctx.fillStyle = "#333";
                 ctx.textBaseline = "middle";
-
-                // Align text based on Left/Right side of chart
-                if (x > centerX) {
-                    ctx.textAlign = "left";
-                    ctx.fillText(labelText, x + 5, y);
-                } else {
-                    ctx.textAlign = "right";
-                    ctx.fillText(labelText, x - 5, y);
-                }
-
+                ctx.textAlign = x > centerX ? "left" : "right";
+                ctx.fillText(percentage, x > centerX ? x + 5 : x - 5, y);
                 ctx.restore();
             });
         }
@@ -142,8 +118,7 @@ const renderGenderChart = (chartData) => {
                 data: dataValues,
                 backgroundColor: backgroundColors,
                 borderWidth: 2,
-                borderColor: '#ffffff',
-                hoverOffset: 0
+                borderColor: '#ffffff'
             }]
         },
         options: {
@@ -151,52 +126,41 @@ const renderGenderChart = (chartData) => {
             maintainAspectRatio: false,
             cutout: '70%',
             layout: {
-                
-                padding: {
-                    top: 20,
-                    bottom: 20,
-                    left: 60,
-                    right: 60
-                }
+                // Aumentamos padding lateral para dar espacio a las líneas
+                padding: { top: 10, bottom: 10, left: 45, right: 45 }
             },
             plugins: {
                 legend: {
                     position: 'bottom',
                     labels: {
                         usePointStyle: true,
-                        padding: 20,
-                        font: { size: 11 },
-                        // Clean Legend (Just Names)
-                        generateLabels: function(chart) {
+                        padding: 15,
+                        font: { size: 12 },
+                        // Enriquecemos la leyenda con valores por si las etiquetas externas se ocultan
+                        generateLabels: (chart) => {
                             const data = chart.data;
-                            if (data.labels.length && data.datasets.length) {
-                                return data.labels.map((label, i) => {
-                                    const fill = data.datasets[0].backgroundColor[i];
-                                    let cleanLabel = label.charAt(0).toUpperCase() + label.slice(1);
-                                    if(cleanLabel.toLowerCase() === 'maennlich') cleanLabel = 'Männlich';
-                                    
-                                    return {
-                                        text: cleanLabel,
-                                        fillStyle: fill,
-                                        strokeStyle: fill,
-                                        hidden: isNaN(data.datasets[0].data[i]),
-                                        index: i
-                                    };
-                                });
-                            }
-                            return [];
+                            return data.labels.map((label, i) => {
+                                const value = data.datasets[0].data[i];
+                                const perc = ((value / totalCount) * 100).toFixed(1);
+                                let cleanLabel = label.charAt(0).toUpperCase() + label.slice(1);
+                                if(cleanLabel.toLowerCase() === 'maennlich') cleanLabel = 'Männlich';
+                                
+                                return {
+                                    text: `${cleanLabel}: ${perc}%`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    index: i
+                                };
+                            });
                         }
                     }
                 },
                 title: {
                     display: true,
                     text: 'Opferverteilung nach Geschlecht',
-                    font: { size: 14, weight: 'bold' },
-                    padding: { bottom: 10 }
+                    font: { size: 15, weight: 'bold' }
                 },
-                // Disable Tooltips
                 tooltip: {
-                    enabled: false
+                    enabled: true // Habilitar tooltips como respaldo en móvil
                 }
             }
         },

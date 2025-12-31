@@ -15,10 +15,29 @@ body {
     background-color: var(--bg-color);
 }
 
+/* dashboard.css */
+.button-secondary-block {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: #95a5a6;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button-secondary-block:hover {
+    background: #f8f9fa;
+    color: #e74c3c;
+}
+
 #dashboard-container {
     flex-grow: 1;
     padding: 20px 30px 30px 30px;
     overflow-y: auto;
+    border-color: #e74c3c;
 }
 
 .dashboard-row {

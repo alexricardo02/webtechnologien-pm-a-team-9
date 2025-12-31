@@ -92,7 +92,6 @@ $straftat_hauptkategorien = [
           <label for="filter-geschlecht">Landkreis</label>
           <div class="search-wrapper">
             <input type="text" id="search-landkreis" class="styled-select" placeholder="z. B. Kiel" list="landkreis-list">
-            <button id="clear-search" class="clear-btn" title="Suche löschen" style="display: none;">&times;</button>
             <datalist id="landkreis-list">
               </datalist>
           </div>
@@ -100,6 +99,7 @@ $straftat_hauptkategorien = [
         </div>
 
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
+        <button id="reset-filters" class="button-secondary-block">Filter zurücksetzen</button>
 
         <div id="selected-tags-container">
             

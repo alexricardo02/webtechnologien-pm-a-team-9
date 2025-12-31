@@ -156,12 +156,17 @@ body {
 }
 
 .sidebar-header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
 }
 
 .sidebar-header h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin: 0;
     color: var(--primary-color);
+    color: #999;
 }
 
 .filter-vertical-container {
@@ -178,8 +183,10 @@ body {
 
 .filter-group-vertical label {
     font-weight: 600;
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+    gap: 6px;
 }
 
 .button-primary-block {
@@ -191,7 +198,7 @@ body {
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .search-wrapper {

@@ -24,7 +24,7 @@ $straftat_hauptkategorien = [
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <script src="assets/js/dashboard_chart.js" defer></script>
+  <script src="assets/js/dashboard_charts.js" defer></script>
   <script src="assets/js/gender_chart.js" defer></script>
   <script src="assets/js/crime_comparison_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/style.css">
@@ -35,12 +35,14 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/filter.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
+  <link rel="stylesheet" href="assets/css/landkreisFilterTag.css">
 
   <script src="assets/js/centralDataManager.js" defer></script>
   <script src="assets/js/kpi2023.js" defer></script>
   <script src="assets/js/kpi2024.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/age_chart.js" defer></script>
+  <script srC="assets/js/landkreisSuchFilter.js" defer></script>
 </head>
 
 <body>
@@ -86,7 +88,22 @@ $straftat_hauptkategorien = [
           </select>
         </div>
 
+        <div class="filter-group-vertical">
+          <label for="filter-geschlecht">Landkreis</label>
+          <div class="search-wrapper">
+            <input type="text" id="search-landkreis" class="styled-select" placeholder="z. B. Kiel" list="landkreis-list">
+            <button id="clear-search" class="clear-btn" title="Suche löschen" style="display: none;">&times;</button>
+            <datalist id="landkreis-list">
+              </datalist>
+          </div>
+          <small id="search-error" class="error-msg" style="display: none;">Landkreis nicht gefunden</small>
+        </div>
+
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
+
+        <div id="selected-tags-container">
+            
+        </div>
       </div>
     </aside>
 

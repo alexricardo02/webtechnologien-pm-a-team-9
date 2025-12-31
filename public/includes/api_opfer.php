@@ -44,6 +44,20 @@ if ($straftat && $straftat !== 'all') {
     $params[] = $straftat;
 }
 
+if($landkreis) {
+    $landkreisArray = explode(',', $landkreis);
+
+    $placeholders = implode(',', array_fill(0, count($landkreisArray), '?'));
+    
+    $sql .= " AND Stadt_Landkreis IN ($placeholders)";
+    
+    foreach ($landkreisArray as $name) {
+        $types .= "s";
+        $params[] = $name;
+    }
+}
+
+
 // 2. GROUP BY
 if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";

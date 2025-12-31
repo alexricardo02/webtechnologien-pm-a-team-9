@@ -1,32 +1,15 @@
+const renderGenderChart = (chartData) => {
+    const ctx = document.getElementById('genderChart');
+    if (!ctx) return;
 
-
-async function fetchGenderData(filters = {}) {
-    const params = new URLSearchParams();
-    params.append('groupBy', 'gender');
-    
-    if (filters.jahr && filters.jahr !== 'all') params.append('jahr', filters.jahr);
-    if (filters.straftat && filters.straftat !== 'all') params.append('straftat', filters.straftat);
-    if (filters.landkreis && filters.landkreis !== 'all') params.append('landkreis', filters.landkreis);
-
-    try {
-        const response = await fetch(`includes/api_opfer.php?${params.toString()}`);
-        return await response.json();
-    } catch (error) {
-        console.error("Error fetching gender data:", error);
-        return [];
+    if (window.genderChartInstance) {
+        window.genderChartInstance.destroy();
     }
-}
 
-async function updateGenderChart(filters) {
-    const rawData = await fetchGenderData(filters);
-    
-    // 1. Process Data
     const genderSums = {};
     let totalCount = 0;
 
-    console.log(rawData);
-
-    rawData.forEach(item => {
+    chartData.forEach(item => {
         let gender = item.name;
         if (!genderSums[gender]) genderSums[gender] = 0;
         genderSums[gender] += item.value;
@@ -53,14 +36,6 @@ async function updateGenderChart(filters) {
         return '#34495E'; 
     });
 
-    const ctx = document.getElementById('genderChart');
-    if (!ctx) return;
-
-    if (window.genderChartInstance) {
-        window.genderChartInstance.destroy();
-    }
-
-    //  Center Text (Total) --- Gesamt Opfer Zahl
     const centerTextPlugin = {
         id: 'centerText',
         afterDraw: function(chart) {
@@ -229,18 +204,5 @@ async function updateGenderChart(filters) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateGenderChart({});
 
-    const applyBtn = document.getElementById('apply-filters');
-    if(applyBtn) {
-        applyBtn.addEventListener('click', () => {
-            const filters = {
-                jahr: document.getElementById('filter-jahr').value,
-                straftat: document.getElementById('filter-straftat').value,
-                landkreis: 'all' 
-            };
-            updateGenderChart(filters);
-        });
-    }
-});
+window.renderGenderChart = renderGenderChart;

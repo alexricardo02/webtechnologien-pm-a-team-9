@@ -1,5 +1,5 @@
 html, body {
-    padding-top: 64px;
+    padding-top: 30px;
 }
 
 
@@ -55,8 +55,6 @@ html, body {
     font-weight: 700;
     letter-spacing: -0.5px;
 }
-
-
 
 .navbar a:hover {
     color: var(--white);

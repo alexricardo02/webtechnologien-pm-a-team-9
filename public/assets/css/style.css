@@ -29,7 +29,7 @@ html, body {
     width: 100%;
     height: 100%;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    padding-top: 64px;
+    padding-top: 60px;
 }
 
 input, select, textarea, button {

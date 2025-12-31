@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(err => {
             console.error('KPI 2023 CSV Error:', err);
             const display = document.getElementById('val-2023');
-            if(display) display.innerText = "0";
+            if (display) display.innerText = "0";
         });
 });
 
@@ -52,14 +52,14 @@ function calculateSumFromCSV(csvText, targetYear) {
         if (!row) continue;
 
         const cols = row.split(',');
-        
+
         // Safety: Ensure row has enough columns
         if (cols.length < headers.length) continue;
 
         // 3. Filter and Sum
         // Only condition: Check if Year matches
         if (cols[indexJahr] === targetYear) {
-            
+
             // REMOVED: The filter for "Straftaten insgesamt" is gone.
             // We now sum everything regardless of crime type.
 

@@ -1,29 +1,40 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 :root {
     /* Backgrounds */
-    --bg-main: #121212;       /* Background for main page (Almost black) */
-    --bg-panel: #1E1E1E;      /* Background for cards, header, sidebar (Dark gray) */
+    --bg-main: #121212;
+    /* Background for main page (Almost black) */
+    --bg-panel: #1E1E1E;
+    /* Background for cards, header, sidebar (Dark gray) */
 
     /* Texts */
-    --text-primary: #E0E0E0;  /* Titles and labels (Light gray) */
-    --text-secondary: #A0A0A0;/* Subtitles and tags (Medium gray) */
+    --text-primary: #E0E0E0;
+    /* Titles and labels (Light gray) */
+    --text-secondary: #A0A0A0;
+    /* Subtitles and tags (Medium gray) */
     --text-main: #333333;
     /* Data and Accents */
-    --color-cyan: #00B4D8;    /* Cold data, low crime */
-    --color-orange: #FF9F1C;  /* Hotspots, high crime (Very prominent) */
-    --color-alert: #FF3366;   /* Negative trends, alerts (Intense red/pink) */
+    --color-cyan: #00B4D8;
+    /* Cold data, low crime */
+    --color-orange: #FF9F1C;
+    /* Hotspots, high crime (Very prominent) */
+    --color-alert: #FF3366;
+    /* Negative trends, alerts (Intense red/pink) */
     --color-blue: #0055A5;
 
     /* Extra */
-    --white: #ffffff;   /* Pure white (use with caution) */
+    --white: #ffffff;
+    /* Pure white (use with caution) */
     --border-radius: 12px;
     --min-width-layout: 768px
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -32,7 +43,9 @@ html, body {
     padding-top: 60px;
 }
 
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
     font-family: inherit;
 }
-

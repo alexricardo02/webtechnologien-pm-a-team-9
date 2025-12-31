@@ -23,27 +23,32 @@ body {
 
 .dashboard-row {
     display: flex;
-    flex-wrap: wrap;        /* Erlaubt das Umbrechen auf kleinen Screens */          
-    gap: 30px;               /* Gap between map and card */
-    align-items: flex-start;    /* Makes both boxes the same height */
+    flex-wrap: wrap;
+    /* Erlaubt das Umbrechen auf kleinen Screens */
+    gap: 30px;
+    /* Gap between map and card */
+    align-items: flex-start;
+    /* Makes both boxes the same height */
     margin-bottom: 30px;
 }
 
 .dashboard-card h3 {
-    color:var(--text-main);
+    color: var(--text-main);
 }
-
 
 .dashboard-card {
     background-color: white;
-    border-radius: 12px;     /* Rounded corners */
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15); /* Soft professional shadow */
-    padding: 20px;           /* Inner spacing within the card */
-    overflow: hidden;        /* Ensures nothing spills out of the card */
+    border-radius: 12px;
+    /* Rounded corners */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    /* Soft professional shadow */
+    padding: 20px;
+    /* Inner spacing within the card */
+    overflow: hidden;
+    /* Ensures nothing spills out of the card */
     display: flex;
     flex-direction: column;
 }
-
 
 .dashboard-layout {
     display: flex;
@@ -90,5 +95,4 @@ body {
     .dashboard-header h2 {
         font-size: 2.5rem;
     }
-
 }

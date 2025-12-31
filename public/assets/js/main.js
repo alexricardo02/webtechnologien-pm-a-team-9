@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // wir löschen den Jahres-Filter für den Stacked Chart, um immer 2023 vs 2024 zu zeigen
     const stackedParams = new URLSearchParams(filters);
-    stackedParams.delete("jahr"); 
+    stackedParams.delete("jahr");
     stackedParams.append("groupBy", "straftat");
 
 
@@ -59,44 +59,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (dataState) {
 
-    
+
         const fRawData = DataManager.landkreisSuchFunktion(dataState.rawData, selectedLandkreise);
         const fIndex = {};
         fRawData.forEach(item => {
-            const name = (item.name || "").toLowerCase().trim();
-            fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
+          const name = (item.name || "").toLowerCase().trim();
+          fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
         });
 
-      // Karte und Standard-Charts
-      if (window.initMap)
-        window.initMap(dataState.geoJSON, fIndex);
+        // Karte und Standard-Charts
+        if (window.initMap)
+          window.initMap(dataState.geoJSON, fIndex);
 
-      if (window.initDashboardCharts)
-        window.initDashboardCharts(fRawData);
+        if (window.initDashboardCharts)
+          window.initDashboardCharts(fRawData);
 
-      // Der Altersverteilungs-Chart
-      if (window.initAgeChart) {
-        window.initAgeChart(ageData);
+        // Der Altersverteilungs-Chart
+        if (window.initAgeChart) {
+          window.initAgeChart(ageData);
+        }
+          
+        // Der einfache Vergleichschart (reagiert auf den Jahres-Filter)
+        if (window.initCrimeComparisonChart) {
+          window.initCrimeComparisonChart(straftatData);
+        }
+
+        if (window.renderGenderChart) window.renderGenderChart(genderData);
+
+        // Der Stacked Chart (ignoriert das gewählte Jahr intern, um immer 2023/24 zu zeigen)
+        if (window.initCrimeStackedChart) {
+          window.initCrimeStackedChart(stackedData);
+        }
       }
-
-      // Der einfache Vergleichschart (reagiert auf den Jahres-Filter)
-      if (window.initCrimeComparisonChart) {
-        window.initCrimeComparisonChart(straftatData);
-      }
-
-      if (window.renderGenderChart) window.renderGenderChart(genderData);
-
-      // Der Stacked Chart (ignoriert das gewählte Jahr intern, um immer 2023/24 zu zeigen)
-      if (window.initCrimeStackedChart) {
-        window.initCrimeStackedChart(stackedData);
-      }
-    }
 
     } catch (error) {
-        console.error("Fehler beim parallel Laden der Daten:", error);
+      console.error("Fehler beim parallel Laden der Daten:", error);
     }
 
-    
+
   };
 
   // --- EVENTS ---

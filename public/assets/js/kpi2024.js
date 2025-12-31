@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // or use local logic if 2023 didn't load. 
             // For safety, we define the logic here inline or assume the global function exists.
             // To be safe and independent:
-            
+
             const total2024 = calculateSum2024(csvText, '2024');
 
             // Update Display
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(err => {
             console.error('KPI 2024 CSV Error:', err);
             const display = document.getElementById('val-2024');
-            if(display) display.innerText = "-";
+            if (display) display.innerText = "-";
         });
 });
 

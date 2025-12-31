@@ -44,13 +44,13 @@ if ($straftat && $straftat !== 'all') {
     $params[] = $straftat;
 }
 
-if($landkreis) {
+if ($landkreis) {
     $landkreisArray = explode(',', $landkreis);
 
     $placeholders = implode(',', array_fill(0, count($landkreisArray), '?'));
-    
+
     $sql .= " AND Stadt_Landkreis IN ($placeholders)";
-    
+
     foreach ($landkreisArray as $name) {
         $types .= "s";
         $params[] = $name;
@@ -86,8 +86,8 @@ $data = [];
 while ($row = $result->fetch_assoc()) {
     $data[] = [
         "name" => $row['name'],
-        "jahr" => $row['Jahr'], 
-        "value" => (int)$row['value']
+        "jahr" => $row['Jahr'],
+        "value" => (int) $row['value']
     ];
 }
 

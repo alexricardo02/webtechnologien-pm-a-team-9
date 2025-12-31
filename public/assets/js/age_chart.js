@@ -30,29 +30,29 @@ const renderAgeChart = (chartData) => {
       // console.log("Processing Row:", str, "Value:", val);
 
       // 1. Senioren (60+) - Muss zuerst geprüft werden, um Überschneidungen mit der Gruppe 21-60 zu vermeiden
-    if (str.includes('erwachsene 60 jahre und aelter')) {
+      if (str.includes('erwachsene 60 jahre und aelter')) {
         buckets['Erwachsene 60 Jahre und älter'] += val;
-    }
-    // 2. Erwachsene 21-60: Suchen wir nach "erwachsene 21 bis unter 60 jahre"
-    else if (str.includes('erwachsene 21 bis unter 60 jahre')) {
+      }
+      // 2. Erwachsene 21-60: Suchen wir nach "erwachsene 21 bis unter 60 jahre"
+      else if (str.includes('erwachsene 21 bis unter 60 jahre')) {
         buckets['Erwachsene 21 bis unter 60 Jahren'] += val;
-    }
-    // 3. Heranwachsende (18-21): Eindeutige Kategorisierung durch Fachbegriff
-    else if (str.includes('heranwachsende 18 bis unter 21 jahre')) {
+      }
+      // 3. Heranwachsende (18-21): Eindeutige Kategorisierung durch Fachbegriff
+      else if (str.includes('heranwachsende 18 bis unter 21 jahre')) {
         buckets['Heranwachsende 18 bis unter 21 Jahren'] += val;
-    }
-    // 4. Jugendliche (14-18): Eindeutige Kategorisierung durch Fachbegriff
-    else if (str.includes('jugendliche 14 bis unter 18 jahre')) {
+      }
+      // 4. Jugendliche (14-18): Eindeutige Kategorisierung durch Fachbegriff
+      else if (str.includes('jugendliche 14 bis unter 18 jahre')) {
         buckets['Jugendliche 14 bis unter 18 Jahren'] += val;
-    }
-    // 5. Kinder (6 bis 14): Suche nach der exakten Bezeichnung (inkl. Leerzeichen-Check)
-    else if (str.includes('kinder 6  bis unter 14 jahre')) {
+      }
+      // 5. Kinder (6 bis 14): Suche nach der exakten Bezeichnung (inkl. Leerzeichen-Check)
+      else if (str.includes('kinder 6  bis unter 14 jahre')) {
         buckets['Kinder 6 bis unter 14 Jahren'] += val;
-    }
-    // 6. Kinder (<6): Suche nach der Bezeichnung für Kleinkinder
-    else if (str.includes('kinder bis unter 6 jahre')) {
+      }
+      // 6. Kinder (<6): Suche nach der Bezeichnung für Kleinkinder
+      else if (str.includes('kinder bis unter 6 jahre')) {
         buckets['Kinder unter 6 Jahren'] += val;
-    } else {
+      } else {
         console.warn("IGNORED DATA:", str);
       }
     });

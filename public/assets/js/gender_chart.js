@@ -19,7 +19,6 @@ const renderGenderChart = (chartData) => {
     const labels = Object.keys(genderSums);
     const dataValues = Object.values(genderSums);
 
-    // 2. Colors
     const colorMap = {
         'männlich': '#3498DB',
         'maennlich': '#3498DB',
@@ -36,6 +35,7 @@ const renderGenderChart = (chartData) => {
         return '#34495E';
     });
 
+    // PLUGIN: Texto Central Escalable
     const centerTextPlugin = {
         id: 'centerText',
         afterDraw: function (chart) {
@@ -64,7 +64,7 @@ const renderGenderChart = (chartData) => {
         }
     };
 
-    // PERMANENT Outside Labels
+    // PLUGIN: Etiquetas Externas Inteligentes
     const permanentLabelsPlugin = {
         id: 'permanentLabels',
         afterDraw: function (chart) {
@@ -90,7 +90,6 @@ const renderGenderChart = (chartData) => {
                 const percentage = (percentVal * 100).toFixed(1) + '%';
                 const labelText = `${displayLabel}: ${value.toLocaleString('de-DE')} (${percentage})`;
 
-                // Calculate Position
                 const midAngle = element.startAngle + (element.endAngle - element.startAngle) / 2;
 
                 // Position for the text (Outer Radius + Padding)
@@ -99,36 +98,26 @@ const renderGenderChart = (chartData) => {
                 const x = centerX + Math.cos(midAngle) * r;
                 const y = centerY + Math.sin(midAngle) * r;
 
-                // Position for the line start
-                const lineStartRadius = element.outerRadius + 4;
+                const lineStartRadius = element.outerRadius + 2;
                 const lineStartX = centerX + Math.cos(midAngle) * lineStartRadius;
                 const lineStartY = centerY + Math.sin(midAngle) * lineStartRadius;
 
                 ctx.save();
-
-                // 1. Draw Connecting Line
+                // Línea de conexión
                 ctx.beginPath();
                 ctx.moveTo(lineStartX, lineStartY);
                 ctx.lineTo(x, y);
-                // Line matches slice color for a "Pro" look
                 ctx.strokeStyle = chart.data.datasets[0].backgroundColor[index];
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // 2. Draw Text
-                ctx.font = "bold 12px Arial, sans-serif"; // Clean, readable font
-                ctx.fillStyle = "#333"; // Dark Grey text
+                // Texto
+                const percentage = (percentVal * 100).toFixed(1) + '%';
+                ctx.font = "bold 11px Arial, sans-serif";
+                ctx.fillStyle = "#333";
                 ctx.textBaseline = "middle";
-
-                // Align text based on Left/Right side of chart
-                if (x > centerX) {
-                    ctx.textAlign = "left";
-                    ctx.fillText(labelText, x + 5, y);
-                } else {
-                    ctx.textAlign = "right";
-                    ctx.fillText(labelText, x - 5, y);
-                }
-
+                ctx.textAlign = x > centerX ? "left" : "right";
+                ctx.fillText(percentage, x > centerX ? x + 5 : x - 5, y);
                 ctx.restore();
             });
         }
@@ -142,8 +131,7 @@ const renderGenderChart = (chartData) => {
                 data: dataValues,
                 backgroundColor: backgroundColors,
                 borderWidth: 2,
-                borderColor: '#ffffff',
-                hoverOffset: 0
+                borderColor: '#ffffff'
             }]
         },
         options: {
@@ -191,12 +179,10 @@ const renderGenderChart = (chartData) => {
                 title: {
                     display: true,
                     text: 'Opferverteilung nach Geschlecht',
-                    font: { size: 14, weight: 'bold' },
-                    padding: { bottom: 10 }
+                    font: { size: 15, weight: 'bold' }
                 },
-                // Disable Tooltips
                 tooltip: {
-                    enabled: false
+                    enabled: true // Habilitar tooltips como respaldo en móvil
                 }
             }
         },

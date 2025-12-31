@@ -35,7 +35,7 @@ const renderGenderChart = (chartData) => {
         return '#34495E';
     });
 
-    // PLUGIN: Texto Central Escalable
+    // PLUGIN: Text
     const centerTextPlugin = {
         id: 'centerText',
         afterDraw: function (chart) {
@@ -64,7 +64,7 @@ const renderGenderChart = (chartData) => {
         }
     };
 
-    // PLUGIN: Etiquetas Externas Inteligentes
+    // PLUGIN: External Permanent Labels
     const permanentLabelsPlugin = {
         id: 'permanentLabels',
         afterDraw: function (chart) {
@@ -103,7 +103,7 @@ const renderGenderChart = (chartData) => {
                 const lineStartY = centerY + Math.sin(midAngle) * lineStartRadius;
 
                 ctx.save();
-                // Línea de conexión
+                // Connection line
                 ctx.beginPath();
                 ctx.moveTo(lineStartX, lineStartY);
                 ctx.lineTo(x, y);
@@ -111,8 +111,7 @@ const renderGenderChart = (chartData) => {
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // Texto
-                const percentage = (percentVal * 100).toFixed(1) + '%';
+                // Text
                 ctx.font = "bold 11px Arial, sans-serif";
                 ctx.fillStyle = "#333";
                 ctx.textBaseline = "middle";
@@ -182,7 +181,7 @@ const renderGenderChart = (chartData) => {
                     font: { size: 15, weight: 'bold' }
                 },
                 tooltip: {
-                    enabled: true // Habilitar tooltips como respaldo en móvil
+                    enabled: true 
                 }
             }
         },

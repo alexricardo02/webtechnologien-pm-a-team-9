@@ -28,7 +28,7 @@ $params = [];
 $types = "";
 
 // --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
-if ($straftat && $straftat !== 'all') {
+if ($straftat && $straftat !== 'all' && $straftat !== '') {
     $sql .= " AND Straftat_Hauptkategorie = ?";
     $types .= "s";
     $params[] = $straftat;

@@ -1,6 +1,7 @@
 <?php
 $straftat_hauptkategorien = [
   "Alle Straftaten" => "",
+  "Gewaltkriminalität" => "Gewaltkriminalität",
   "Tötung & Körperverletzung" => "Tötung & Körperverletzung",
   "Sexualdelikte" => "Sexualdelikte",
   "Raubdelikte" => "Raubdelikte",

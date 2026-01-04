@@ -42,7 +42,7 @@ $straftat_hauptkategorien = [
   <script src="assets/js/kpi2024.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/age_chart.js" defer></script>
-  <script srC="assets/js/landkreisSuchFilter.js" defer></script>
+  <script src="assets/js/landkreisSuchFilter.js" defer></script>
 </head>
 
 <body>
@@ -62,7 +62,7 @@ $straftat_hauptkategorien = [
         <div class="filter-group-vertical">
           <label for="filter-jahr">Jahr</label>
           <select id="filter-jahr" class="styled-select">
-            <option value="">Alle Jahre</option>
+            <option value="all">Alle Jahre</option>
             <option value="2023">2023</option>
             <option value="2024">2024</option>
           </select>
@@ -71,10 +71,25 @@ $straftat_hauptkategorien = [
         <div class="filter-group-vertical">
           <label for="filter-geschlecht">Geschlecht</label>
           <select id="filter-geschlecht" class="styled-select">
-            <option value="">Alle Geschlechter</option>
+            <option value="all">Alle Geschlechter</option>
             <option value="maennlich">Männlich</option>
             <option value="weiblich">Weiblich</option>
           </select>
+        </div>
+
+        <div class="filter-group-vertical">
+            <label for="filter-altersgruppe">Altersgruppe</label>
+            <div class="select-wrapper">
+                <select id="filter-altersgruppe" class="styled-select">
+                    <option value="all">Alle Altersgruppen</option>
+                    <option value="Kinder bis unter 6 Jahre">Kinder unter 6 Jahren</option>
+                    <option value="Kinder 6  bis unter 14 Jahre">Kinder 6 bis unter 14 Jahren</option>
+                    <option value="Jugendliche 14 bis unter 18 Jahre">Jugendliche 14 - 18 Jahre</option>
+                    <option value="Heranwachsende 18 bis unter 21 Jahre">Heranwachsende 18 - 21 Jahre</option>
+                    <option value="Erwachsene 21 bis unter 60 Jahre">Erwachsene 21 - 60 Jahre</option>
+                    <option value="Erwachsene 60 Jahre und älter">Erwachsene 60+ Jahre</option>
+                </select>
+            </div>
         </div>
 
         <div class="filter-group-vertical">
@@ -89,7 +104,7 @@ $straftat_hauptkategorien = [
         </div>
 
         <div class="filter-group-vertical">
-          <label for="filter-geschlecht">Landkreis</label>
+          <label for="search-landkreis">Landkreis</label>
           <div class="search-wrapper">
             <input type="text" id="search-landkreis" class="styled-select" placeholder="z. B. Kiel" list="landkreis-list">
             <datalist id="landkreis-list">
@@ -101,14 +116,11 @@ $straftat_hauptkategorien = [
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
         <button id="reset-filters" class="button-secondary-block">Filter zurücksetzen</button>
 
-        <div id="selected-tags-container">
-
-        </div>
+        <div id="selected-tags-container"></div>
       </div>
     </aside>
 
     <main id="dashboard-container">
-
 
       <section class="kpi-grid">
         <div class="kpi-card kpi-2023">
@@ -205,9 +217,6 @@ $straftat_hauptkategorien = [
       </div>
 
     </main>
-
   </div>
-
 </body>
-
 </html>

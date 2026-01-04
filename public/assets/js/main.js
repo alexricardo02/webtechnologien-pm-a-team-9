@@ -1,3 +1,4 @@
+
 /**
  * Central Data Manager
  * Koordiniert die Datenverarbeitung und die Anwendungsinitialisierung.
@@ -18,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       jahr: document.getElementById("filter-jahr")?.value || "",
       geschlecht: document.getElementById("filter-geschlecht")?.value || "",
       straftat: document.getElementById("filter-straftat")?.value || "",
+      altersgruppe: document.getElementById("filter-altersgruppe")?.value || "", // NEW
       landkreis: cleanLandkreise.join(","),
       altersgruppe: document.getElementById("filter-altersgruppe")?.value || "",
     };

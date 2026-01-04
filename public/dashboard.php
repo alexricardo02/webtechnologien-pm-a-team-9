@@ -1,6 +1,7 @@
 <?php
 $straftat_hauptkategorien = [
   "Alle Straftaten" => "",
+  "Insgesamt" => "Insgesamt",
   "Tötung & Körperverletzung" => "Tötung & Körperverletzung",
   "Sexualdelikte" => "Sexualdelikte",
   "Raubdelikte" => "Raubdelikte",
@@ -81,12 +82,16 @@ $straftat_hauptkategorien = [
             <div class="select-wrapper">
                 <select id="filter-altersgruppe" class="styled-select">
                     <option value="all">Alle Altersgruppen</option>
+                    
                     <option value="Kinder bis unter 6 Jahre">Kinder unter 6 Jahren</option>
+                    
                     <option value="Kinder 6  bis unter 14 Jahre">Kinder 6 bis unter 14 Jahren</option>
+                    
                     <option value="Jugendliche 14 bis unter 18 Jahre">Jugendliche 14 - 18 Jahre</option>
                     <option value="Heranwachsende 18 bis unter 21 Jahre">Heranwachsende 18 - 21 Jahre</option>
                     <option value="Erwachsene 21 bis unter 60 Jahre">Erwachsene 21 - 60 Jahre</option>
-                    <option value="Erwachsene 60 Jahre und älter">Erwachsene 60+ Jahre</option>
+                    
+                    <option value="Erwachsene 60 Jahre und aelter">Erwachsene 60+ Jahre</option>
                 </select>
             </div>
         </div>

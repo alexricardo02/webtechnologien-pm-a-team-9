@@ -26,9 +26,9 @@ $straftat_hauptkategorien = [
 
   <script src="assets/js/dashboard_charts.js" defer></script>
   <script src="assets/js/gender_chart.js" defer></script>
-  <script src="assets/js/crime_comparison_chart.js" defer></script>
+  <script src="assets/js/kriminalitaets_vergleich_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/style.css">
-  <script src="assets/js/crime_stacked_chart.js" defer></script>
+  <script src="assets/js/kriminalitaets_gestapeltes_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/header.css">
   <link rel="stylesheet" href="assets/css/karte.css">
   <link rel="stylesheet" href="assets/css/kpi.css">

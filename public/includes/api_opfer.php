@@ -10,6 +10,7 @@ if (!$verbindung) {
 $jahr = $_GET['jahr'] ?? '';
 $geschlecht = $_GET['geschlecht'] ?? '';
 $straftat = $_GET['straftat'] ?? '';
+$altersgruppe = $_GET['altersgruppe'] ?? ''; // NEW: Capture Age Filter
 $landkreis = $_GET['landkreis'] ?? '';
 $groupBy = $_GET['groupBy'] ?? 'location';
 
@@ -59,7 +60,12 @@ if ($straftat && $straftat !== 'all') {
     $types .= "s";
     $params[] = $straftat;
 }
-
+// Filter: Altersgruppe (NEW - This was missing!)
+if ($altersgruppe && $altersgruppe !== 'all') {
+    $sql .= " AND Altersgruppe = ?";
+    $types .= "s";
+    $params[] = $altersgruppe;
+}
 if ($landkreis) {
     $landkreisArray = explode(',', $landkreis);
 

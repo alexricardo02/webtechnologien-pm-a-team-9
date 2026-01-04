@@ -26,9 +26,6 @@ const renderAgeChart = (chartData) => {
       const val = parseInt(item.value) || 0;
       if (val > 0) hasData = true;
 
-      // --- FOR DEBUGGING: Check the Console to see raw data ---
-      // console.log("Processing Row:", str, "Value:", val);
-
       // 1. Senioren (60+) - Muss zuerst geprüft werden, um Überschneidungen mit der Gruppe 21-60 zu vermeiden
       if (str.includes('erwachsene 60 jahre und aelter')) {
         buckets['Erwachsene 60 Jahre und älter'] += val;

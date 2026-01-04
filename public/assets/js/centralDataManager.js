@@ -1,21 +1,32 @@
 /* Ist dafür zuständig, Daten EINMAL zu laden und sie an diejenigen weiterzugeben, die sie anfordern. */
 
 const DataManager = {
-  // Hier werden die Daten gespeichert
   state: {
     geoJSON: null, // Karte GeoJSON
     requestCache: {},
   },
 
+
+  /**
+   * Liefert alle eindeutigen Landkreisnamen aus dem GeoJSON zurück.
+   * Wenn das GeoJSON noch nicht geladen wurde, wird ein leeres Array zurückgegeben.
+   */
   getLandkreisNames: function () {
     if (!this.state.geoJSON) return [];
-    // wir extrahieren alle eindeutigen Landkreisnamen aus dem GeoJSON
     const names = this.state.geoJSON.features.map((f) => f.properties.NAME_3);
-    return [...new Set(names)].sort();
+    return [...new Set(names)].sort(); // Wir konvertieren die Namen in ein Set, um Duplikate zu entfernen
   },
 
+  /**
+   * Initializes the GeoJSON data.
+   * If the GeoJSON data is already loaded, it simply returns the cached data.
+   * Otherwise, it fetches the GeoJSON data from the server and caches it.
+   */
   initGeo: async function () {
-    if (this.state.geoJSON) return this.state.geoJSON;
+    if (this.state.geoJSON) {
+      return this.state.geoJSON;
+    }
+
     try {
       const res = await fetch("data/landkreise.geo.json");
       this.state.geoJSON = await res.json();
@@ -24,13 +35,14 @@ const DataManager = {
       console.error("Error cargando GeoJSON:", e);
     }
   },
-  /**
-   * Hauptfunktion: Lädt alles Notwendige.
-   * Gibt ein Versprechen zurück, damit die Karte weiß, wann sie beginnen soll.
-   */
 
+  /**
+   * Fetches the filtered data from the server and caches it.
+   * filters - Object containing the filter values.
+   */
   fetchFilteredData: async function (filters = {}) {
     const params = new URLSearchParams();
+    // Add filter values to the URL parameters.
     if (filters.jahr && filters.jahr !== "all")
       params.append("jahr", filters.jahr);
     if (filters.geschlecht && filters.geschlecht !== "all")
@@ -42,12 +54,12 @@ const DataManager = {
     if (filters.altersgruppe && filters.altersgruppe !== "all")
       params.append("altersgruppe", filters.altersgruppe);
 
-    const cacheKey = params.toString(); // Für unsere dictionary-Zwischenspeicherung
+    const cacheKey = params.toString();
 
-    // B. Cache lesen
     if (this.state.requestCache[cacheKey]) {
       return this.state.requestCache[cacheKey];
     }
+
 
     const url = `includes/api_opfer.php?${cacheKey}`;
 
@@ -55,9 +67,8 @@ const DataManager = {
       const response = await fetch(url);
       const rawData = await response.json();
 
-      // 3. Prozessieren bei der Client (Für die Karte gruppieren)
-      // Wir wandeln die rohen Daten in ein schneller zu nutzendes Format um. (Objekt)
-      // Das ist notwendig, damit die Karte schnell auf die Daten zugreifen kann.
+      // Process the data at the client side.
+      // This is necessary so that the map can quickly access the data.
       const index = {};
       rawData.forEach((item) => {
         const name = item.name.toLowerCase().trim();
@@ -66,6 +77,7 @@ const DataManager = {
         index[name] += val;
       });
 
+      // Store the data in the cache.
       const resultState = {
         rawData: rawData,
         opferIndex: index,
@@ -73,7 +85,6 @@ const DataManager = {
       };
 
       this.state.requestCache[cacheKey] = resultState;
-      // 4. Alles ausgeben
       return resultState;
     } catch (err) {
       console.error("Error in fetchFilteredData:", err);
@@ -81,9 +92,10 @@ const DataManager = {
     }
   },
 
+  // Spezielle Namenskorrekturen
   nameMapping: {
     "hanover": "region hannover",
-    "aschersleben-staßfurt": "aschersleben-stassfurt", // Manejo de ß -> ss
+    "aschersleben-staßfurt": "aschersleben-stassfurt", // ß -> ss
     "lauenburg": "herzogtum lauenburg",
   },
 
@@ -109,17 +121,22 @@ const DataManager = {
     });
 
     // 3. Normalizierung
-    n = n.replace(/ß/g, "ss");
+    n = n.replace(/ß/g, "ss"); // ß -> ss
 
     return n;
   },
 
+  /**
+   * Filters the given data based on the selected Landkreise.
+   * It returns all items from the data which have a name that matches one of the selected Landkreise.
+   */
   landkreisSuchFunktion: function (data, selectedLandkreise) {
     if (!selectedLandkreise || selectedLandkreise.size === 0) return data;
 
     const normalizedSelected = new Set(
       Array.from(selectedLandkreise).map((s) => this.normalizeName(s))
     );
+
 
     return data.filter((item) => {
       const itemName = this.normalizeName(item.name);

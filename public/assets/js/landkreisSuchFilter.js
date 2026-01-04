@@ -2,9 +2,14 @@ window.selectedLandkreise = new Set();
 
 let names = [];
 
+/**
+ * Sets up the search input field and populates the datalist with all unique Landkreis names.
+ */
 async function setupSearch() {
-  await DataManager.initGeo();
-  names = DataManager.getLandkreisNames();
+  await dataManager.initGeo();
+  
+  names = dataManager.getLandkreisNames();
+  
   const datalist = document.getElementById("landkreis-list");
   datalist.innerHTML = names.map((n) => `<option value="${n}">`).join("");
 }
@@ -38,21 +43,31 @@ searchInput.addEventListener("input", function () {
   }
 });
 
+/**
+ * Adds a Landkreis to the currently selected ones.
+ * If the maximum amount of 10 Landkreise is already reached, an error message is displayed.
+ */
 function addLandkreis(name) {
   const errorMsg = document.getElementById("search-error");
+
   if (selectedLandkreise.size >= 10 && !selectedLandkreise.has(name)) {
     errorMsg.innerHTML = "Max. 10 Landkreise erlaubt";
     errorMsg.style.display = "block";
     return;
   }
+
   errorMsg.style.display = "none";
 
   selectedLandkreise.add(name);
+
   renderTags();
 
-  if (window.refreshDashboard) window.refreshDashboard();
+  if (window.refreshDashboard) window.refreshDashboard(); // Notify dashboard to refresh data
 }
 
+/**
+ * Renders all currently selected Landkreise as tags in the DOM.
+ */
 function renderTags() {
   const container = document.getElementById("selected-tags-container");
   if (!container) return;
@@ -62,20 +77,36 @@ function renderTags() {
   selectedLandkreise.forEach((name) => {
     const tag = document.createElement("div");
     tag.className = "landkreis-tag";
-    tag.innerHTML = `
-    <span>${name}</span>
-    <button class="remove-btn" 
-            onclick="removeLandkreis('${name}')" 
-            style="background:none; border:none; color:inherit; font:inherit;">&times;</button>
-`;
+
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = name;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "remove-btn";
+    removeBtn.onclick = () => removeLandkreis(name);
+    removeBtn.textContent = "&times;";
+
+    tag.appendChild(nameSpan);
+    tag.appendChild(removeBtn);
+
     container.appendChild(tag);
   });
 }
 
+/**
+ * Removes a Landkreis from the selection.
+ */
 function removeLandkreis(name) {
   const errorMsg = document.getElementById("search-error");
   selectedLandkreise.delete(name);
-  if (selectedLandkreise.size < 10) errorMsg.style.display = "none";
+
+  if (selectedLandkreise.size < 10) {
+    errorMsg.style.display = "none";
+  }
+
   renderTags();
-  if (window.refreshDashboard) window.refreshDashboard();
+
+  if (window.refreshDashboard) {
+    window.refreshDashboard();
+  }
 }

@@ -1,5 +1,13 @@
 
-
+/* Renders a chart with the given data.
+ * elementId - The ID of the HTML element to render the chart in.
+ * chartData - The data to render in the chart. Each object should have a 'name' property and a 'value' property.
+ * titleText - The title text of the chart.
+ * colorScheme - The color scheme of the chart.
+ * [indexAxis='x'] - The axis to index the data by.
+ * [showTitle=true] - Whether to show the title of the chart.
+ * [minHeight=350] - The minimum height of the chart.
+ */
 const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = 'x', showTitle = true, minHeight = 350) => {
     const ctx = document.getElementById(elementId);
     if (!ctx) return;
@@ -64,6 +72,11 @@ const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = '
 };
 
 // --- Main Funktion (Durch main.js) ---
+/*
+ * Initialisiert the dashboard charts using the raw data from the database.
+ * This function groups the data by Landkreis, calculates the top 5 and bottom 5 Landkreise with the most Opferzahlen, 
+ * and renders the charts.
+ */
 window.initDashboardCharts = function (rawData) {
 
     // 1. Daten durch Landkreis gruppiern und (Wenn Daten duplikate haben, summieren)

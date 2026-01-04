@@ -11,6 +11,7 @@ if (!$verbindung) {
 $jahr = $_GET['jahr'] ?? '';
 $geschlecht = $_GET['geschlecht'] ?? '';
 $straftat = $_GET['straftat'] ?? '';
+$altersgruppe = $_GET['altersgruppe'] ?? ''; // NEW: Capture Age Filter
 $landkreis = $_GET['landkreis'] ?? '';
 $groupBy = $_GET['groupBy'] ?? 'location';
 
@@ -34,9 +35,23 @@ if ($groupBy === 'gender') { // Logik für Geschlecht
 $params = [];
 $types = "";
 
-// 1.2 -- FILTER --
-// Wenn ein Wert vorhanden ist, füge der Abfrage die Anweisung "AND Spalte = ?" hinzu. -> (Prepared Statements)
-// - $types: Speichert den Datentyp.
+// --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
+if ($straftat && $straftat !== 'all' && $straftat !== '') {
+    $sql .= " AND Straftat_Hauptkategorie = ?";
+    $types .= "s";
+    $params[] = $straftat;
+} else {
+    // WENN KEINE BESTIMMTE STRAFTAT ANGEFORDERT WIRD, DANN NUR DEN GESAMTWERT ABRUFEN
+    if ($groupBy !== 'straftat') {
+        $sql .= " AND Straftat_Hauptkategorie = 'Insgesamt'";
+    } else {
+        // Wenn wir nach Kategorie gruppieren (z.B. für einen Balkendiagramm), dann ignorieren wir den Gesamtwert, damit er nicht als riesige Balken erscheint.
+        $sql .= " AND Straftat_Hauptkategorie != 'Insgesamt'";
+    }
+}
+
+
+// Filter
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";
     $types .= "i";
@@ -52,7 +67,12 @@ if ($straftat && $straftat !== 'all') {
     $types .= "s";
     $params[] = $straftat;
 }
-// main.js sendet die ausgewählten Landkreise als eine einzige, durch Kommas getrennte Textzeichenfolge, zum Beispiel: „Kiel,Berlin,Mainz”. 
+// Filter: Altersgruppe (NEW - This was missing!)
+if ($altersgruppe && $altersgruppe !== 'all') {
+    $sql .= " AND Altersgruppe = ?";
+    $types .= "s";
+    $params[] = $altersgruppe;
+}
 if ($landkreis) {
     // Wir verwenden eine spezielle SQL-Funktion, die eine durch Kommas getrennte Liste durchsucht.
     $sql .= " AND FIND_IN_SET(Stadt_Landkreis, ?)";

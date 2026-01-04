@@ -6,7 +6,7 @@ const renderAgeChart = (chartData) => {
     window.ageChartInstance.destroy();
   }
 
-  // 1. Define Buckets
+  // 1. Define Buckets (Kategorien für das Diagramm)
   let buckets = {
     "Kinder unter 6 Jahren": 0,
     "Kinder 6 bis unter 14 Jahren": 0,
@@ -16,41 +16,50 @@ const renderAgeChart = (chartData) => {
     "Erwachsene 60 Jahre und älter": 0,
   };
 
-  // 2. Sort Data (Process of Elimination)
+  // 2. Sort Data
   let hasData = false;
 
   if (chartData && chartData.length > 0) {
     chartData.forEach((item) => {
-      // Wichtig: Wir verwenden Kleinbuchstaben, um immer gleich zu vergleichen.
-      const str = (item.name || "").toLowerCase();
+      // WICHTIG: 
+      // 1. toLowerCase(): Alles kleinschreiben
+      // 2. replace(/\s+/g, " "): Doppelte Leerzeichen zu einem machen
+      // 3. trim(): Leerzeichen am Anfang/Ende entfernen
+      const str = (item.name || "").toLowerCase().replace(/\s+/g, " ").trim();
       const val = parseInt(item.value) || 0;
+
       if (val > 0) hasData = true;
 
-      // 1. Senioren (60+) - Muss zuerst geprüft werden, um Überschneidungen mit der Gruppe 21-60 zu vermeiden
-      if (str.includes('erwachsene 60 jahre und aelter')) {
+      // Debugging: Falls es immer noch nicht geht, Kommentar entfernen und Konsole prüfen
+      // console.log("Gelesener Wert aus DB:", str, "Anzahl:", val);
+
+      // 1. Senioren (60+) - Prüft auf "älter" UND "aelter"
+      if (str.includes('60 jahre und aelter') || str.includes('60 jahre und älter')) {
         buckets['Erwachsene 60 Jahre und älter'] += val;
       }
-      // 2. Erwachsene 21-60: Suchen wir nach "erwachsene 21 bis unter 60 jahre"
-      else if (str.includes('erwachsene 21 bis unter 60 jahre')) {
+      // 2. Erwachsene 21-60
+      else if (str.includes('21 bis unter 60 jahre')) {
         buckets['Erwachsene 21 bis unter 60 Jahren'] += val;
       }
-      // 3. Heranwachsende (18-21): Eindeutige Kategorisierung durch Fachbegriff
-      else if (str.includes('heranwachsende 18 bis unter 21 jahre')) {
+      // 3. Heranwachsende (18-21)
+      else if (str.includes('18 bis unter 21 jahre')) {
         buckets['Heranwachsende 18 bis unter 21 Jahren'] += val;
       }
-      // 4. Jugendliche (14-18): Eindeutige Kategorisierung durch Fachbegriff
-      else if (str.includes('jugendliche 14 bis unter 18 jahre')) {
+      // 4. Jugendliche (14-18)
+      else if (str.includes('14 bis unter 18 jahre')) {
         buckets['Jugendliche 14 bis unter 18 Jahren'] += val;
       }
-      // 5. Kinder (6 bis 14): Suche nach der exakten Bezeichnung (inkl. Leerzeichen-Check)
-      else if (str.includes('kinder 6  bis unter 14 jahre')) {
+      // 5. Kinder (6-14) - Erkennt jetzt "6 bis" egal wie viele Leerzeichen dazwischen sind
+      else if (str.includes('kinder 6 bis unter 14 jahre')) {
         buckets['Kinder 6 bis unter 14 Jahren'] += val;
       }
-      // 6. Kinder (<6): Suche nach der Bezeichnung für Kleinkinder
-      else if (str.includes('kinder bis unter 6 jahre')) {
+      // 6. Kinder (<6) - Erkennt "kinder bis unter 6 jahre" oder "kinder unter 6 jahren"
+      else if (str.includes('unter 6 jahre')) {
         buckets['Kinder unter 6 Jahren'] += val;
-      } else {
-        console.warn("IGNORED DATA:", str);
+      } 
+      else {
+         // Falls Daten da sind, aber nicht zugeordnet werden können:
+         // console.warn("Nicht zugeordnete Daten:", str);
       }
     });
   }

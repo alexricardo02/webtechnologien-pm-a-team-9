@@ -1,12 +1,13 @@
-
 /**
  * Central Data Manager
  * Koordiniert die Datenverarbeitung und die Anwendungsinitialisierung.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+  
   // Filtern der aktuellen Filterwerte aus den Dropdowns
   const getCurrentFilters = () => {
+    // Landkreise aus dem globalen Set holen
     const selectedLandkreise = window.selectedLandkreise
       ? Array.from(window.selectedLandkreise)
       : [];
@@ -15,13 +16,22 @@ document.addEventListener("DOMContentLoaded", () => {
       DataManager.normalizeName(name)
     );
 
+    // NEU: Mehrfachauswahl für Straftaten auslesen
+    const straftatSelect = document.getElementById("filter-straftat");
+    let selectedCrimes = "";
+    if (straftatSelect) {
+        selectedCrimes = Array.from(straftatSelect.selectedOptions)
+            .map(opt => opt.value)
+            .filter(val => val !== "") // "Alle" ignorieren
+            .join(",");
+    }
+
     return {
       jahr: document.getElementById("filter-jahr")?.value || "",
       geschlecht: document.getElementById("filter-geschlecht")?.value || "",
-      straftat: document.getElementById("filter-straftat")?.value || "",
-      altersgruppe: document.getElementById("filter-altersgruppe")?.value || "", // NEW
-      landkreis: cleanLandkreise.join(","),
+      straftat: selectedCrimes, // Jetzt als kommagetrennte Liste
       altersgruppe: document.getElementById("filter-altersgruppe")?.value || "",
+      landkreis: cleanLandkreise.join(",")
     };
   };
 
@@ -31,31 +41,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const filters = getCurrentFilters();
     await DataManager.initGeo();
 
-    // Daten speziell gruppiert nach Straftat (für den einfachen Vergleichschart)
+    const rankingFilters = { ...filters, landkreis: "" };
+
     const straftatParams = new URLSearchParams(filters);
     straftatParams.append("groupBy", "straftat");
 
     const ageParams = new URLSearchParams(filters);
-    ageParams.append("groupBy", "altersgruppe"); // Important for age chart
+    ageParams.append("groupBy", "altersgruppe");
 
     const genderParams = new URLSearchParams(filters);
     genderParams.append("groupBy", "gender");
 
-    // wir löschen den Jahres-Filter für den Stacked Chart, um immer 2023 vs 2024 zu zeigen
+    // Jahres-Filter für Stacked Chart entfernen (2023 vs 2024 Vergleich)
     const stackedParams = new URLSearchParams(filters);
     stackedParams.delete("jahr");
     stackedParams.append("groupBy", "straftat");
 
     try {
-      const [dataState, straftatRes, ageRes, genderRes, stackedRes] =
+      // Laden zusätzlich den globalen Datensatz für die Top/Bottom Rankings
+      const [dataState, globalState, straftatRes, ageRes, genderRes, stackedRes] =
         await Promise.all([
-          DataManager.fetchFilteredData(filters),
+          DataManager.fetchFilteredData(filters),        // Gefiltert für Karte/KPIs
+          DataManager.fetchFilteredData(rankingFilters), // Ungefiltert für Top/Bottom Charts
           fetch(`includes/api_opfer.php?${straftatParams.toString()}`),
           fetch(`includes/api_opfer.php?${ageParams.toString()}`),
           fetch(`includes/api_opfer.php?${genderParams.toString()}`),
           fetch(`includes/api_opfer.php?${stackedParams.toString()}`),
         ]);
-      // in JSON gleich umwandeln
+
       const [straftatData, ageData, genderData, stackedData] =
         await Promise.all([
           straftatRes.json(),
@@ -64,42 +77,35 @@ document.addEventListener("DOMContentLoaded", () => {
           stackedRes.json(),
         ]);
 
-      if (dataState) {
+      if (dataState && globalState) {
+        // 1. Daten für Karte & KPIs (reagiert auf ausgewählten Landkreis)
         const fRawData = DataManager.landkreisSuchFunktion(
           dataState.rawData,
           selectedLandkreise
         );
+        
         const fIndex = {};
         fRawData.forEach((item) => {
           const name = (item.name || "").toLowerCase().trim();
           fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
         });
 
+        // 2. Daten für Top/Bottom Rankings (Nutzt globalState.rawData -> Bild 2 Effekt)
+        // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
+        if (window.initDashboardCharts) {
+            window.initDashboardCharts(globalState.rawData);
+        }
 
+        // 3. Update Karte und KPIs mit gefilterten Daten
         if (window.updateKPI2023) window.updateKPI2023(fRawData);
         if (window.updateKPI2024) window.updateKPI2024(fRawData);
-
-        // Karte und Standard-Charts
         if (window.initMap) window.initMap(dataState.geoJSON, fIndex);
 
-        if (window.initDashboardCharts) window.initDashboardCharts(fRawData);
-
-        // Der Altersverteilungs-Chart
-        if (window.initAgeChart) {
-          window.initAgeChart(ageData);
-        }
-
-        // Der einfache Vergleichschart (reagiert auf den Jahres-Filter)
-        if (window.initCrimeComparisonChart) {
-          window.initCrimeComparisonChart(straftatData);
-        }
-
+        // 4. Update der restlichen Charts
+        if (window.initAgeChart) window.initAgeChart(ageData);
+        if (window.initCrimeComparisonChart) window.initCrimeComparisonChart(straftatData);
         if (window.renderGenderChart) window.renderGenderChart(genderData);
-
-        // Der Stacked Chart (ignoriert das gewählte Jahr intern, um immer 2023/24 zu zeigen)
-        if (window.initCrimeStackedChart) {
-          window.initCrimeStackedChart(stackedData);
-        }
+        if (window.initCrimeStackedChart) window.initCrimeStackedChart(stackedData);
       }
     } catch (error) {
       console.error("Fehler beim parallel Laden der Daten:", error);
@@ -108,42 +114,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- EVENTS ---
 
-  // Aktive Filter Löschen
   const resetBtn = document.getElementById("reset-filters");
-
   if (resetBtn) {
     resetBtn.addEventListener("click", (e) => {
         e.preventDefault();
-
-        // 1. Alle Dropdowns zurücksetzen
         const dropdowns = ["filter-jahr", "filter-geschlecht", "filter-straftat", "filter-altersgruppe"];
         dropdowns.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = ""; 
         });
 
-        // 2. Landkreise Auswahl zurücksetzen
-        if (window.selectedLandkreise) {
-            window.selectedLandkreise.clear();
-        }
-
-        if (typeof renderTags === "function") {
-            renderTags();
-        }
-
-        // 3. Alles neuladen und rendern
+        if (window.selectedLandkreise) window.selectedLandkreise.clear();
+        if (typeof renderTags === "function") renderTags();
+        
         loadAndRender();
     });
-}
+  }
 
-  // 1. Initial Load
   window.refreshDashboard = () => loadAndRender();
   window.refreshDashboard();
-  // 2. Button "Filter anwenden"
-  const applyBtn = document.getElementById("apply-filters"); // Button muss diese ID haben
+
+  const applyBtn = document.getElementById("apply-filters");
   if (applyBtn) {
     applyBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // Seitenneuladen vermeiden, wenn Sie sich in einem Formular befinden
+      e.preventDefault();
       loadAndRender();
     });
   }

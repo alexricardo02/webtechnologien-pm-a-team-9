@@ -1,90 +1,81 @@
+/**
+ * Rendert das einfache Balkendiagramm für den Straftaten-Vergleich.
+ * Summiert alle Jahre für die gewählten Kategorien.
+ */
 const renderCrimeComparisonChart = (chartData) => {
     const ctx = document.getElementById('crimeComparisonChart');
     if (!ctx) return;
 
-    // --- NEU: FESTE KATEGORIEN DEFINIEREN ---
-    // Das sorgt dafür, dass die Balken links im Bild immer da bleiben.
-    const fixedCategories = [
+    // Feste Kategorien definieren (Synchron zum Stacked Chart)
+    const categories = [
+        "Gewaltkriminalität",
         "Tötung & Körperverletzung",
         "Sexualdelikte",
         "Raubdelikte",
         "Widerstand & Angriff",
     ];
 
-    const totals = {};
-    
-    // --- NEU: INITIALISIERUNG ---
-    // Wir füllen das Objekt zuerst mit 0 für alle Kategorien
-    fixedCategories.forEach(cat => {
-        totals[cat.toLowerCase()] = {
-            originalName: cat,
-            value: 0
-        };
+    // Daten summieren (2023 + 2024 zusammenrechnen)
+    const grouped = {};
+    let totalSum = 0;
+
+    chartData.forEach((item) => {
+        const cat = item.name;
+        const val = parseInt(item.value || 0);
+
+        if (categories.includes(cat)) {
+            if (!grouped[cat]) grouped[cat] = 0;
+            grouped[cat] += val;
+            totalSum += val; 
+        }
     });
 
-    try {
-        chartData.forEach(item => {
-            if (!item.name) return;
+    // Daten in die richtige Reihenfolge bringen
+    const finalValues = categories.map((c) => (grouped[c] ? grouped[c] : 0));
 
-            const key = item.name.trim().toLowerCase();
-            const val = parseInt(item.value || 0);
+    // Chart-Instanz verwalten
+    if (window.crimeChartInstance) {
+        window.crimeChartInstance.destroy();
+    }
 
-            // Deinen bestehenden Check beibehalten, aber nur für Kategorien in unserer Liste
-            if (totals[key]) {
-                totals[key].value += val;
-            } else if (key !== "insgesamt") { 
-                // Falls eine neue Kategorie in der DB auftaucht, die nicht in der Liste ist
-                totals[key] = {
-                    originalName: item.name.trim(),
-                    value: val
-                };
-            }
-        });
-
-        const finalLabels = [];
-        const finalValues = [];
-
-        // --- ANPASSUNG: REIHENFOLGE ---
-        // Wir gehen die festen Kategorien durch, damit die Sortierung immer gleich bleibt
-        fixedCategories.forEach(cat => {
-            const key = cat.toLowerCase();
-            finalLabels.push(totals[key].originalName);
-            finalValues.push(totals[key].value);
-        });
-
-        if (window.crimeChartInstance) {
-            window.crimeChartInstance.destroy();
-        }
-
-        window.crimeChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: finalLabels,
-                datasets: [{
-                    label: 'Anzahl Opfer (Summe)',
-                    data: finalValues,
-                    backgroundColor: '#0055A5',
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: 'Opferzahlen nach Straftat', font: { size: 16 } },
+    // Chart erstellen
+    window.crimeChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Anzahl Opfer (Gesamtzeitraum)',
+                data: finalValues,
+                backgroundColor: '#0055A5', 
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { 
+                    display: true, 
+                    text: 'Opferzahlen nach Straftat', 
+                    font: { size: 16, weight: 'bold' } 
                 },
-                // --- NEU: Y-ACHSE FIXIEREN ---
-                scales: {
-                    y: {
-                        beginAtZero: true
+                tooltip: {
+                    callbacks: {
+                        label: (context) => context.raw.toLocaleString('de-DE') + ' Opfer'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => value.toLocaleString('de-DE')
                     }
                 }
             }
-        });
-
-    } catch (error) {
-        console.error("Fehler bei der Chart-Aktualisierung:", error);
-    }
+        }
+    });
 };
 
 window.initCrimeComparisonChart = renderCrimeComparisonChart;

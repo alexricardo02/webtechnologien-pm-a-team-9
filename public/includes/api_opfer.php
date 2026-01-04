@@ -27,6 +27,22 @@ if ($groupBy === 'gender') {
 $params = [];
 $types = "";
 
+// --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
+if ($straftat && $straftat !== 'all') {
+    $sql .= " AND Straftat_Hauptkategorie = ?";
+    $types .= "s";
+    $params[] = $straftat;
+} else {
+    // WENN KEINE BESTIMMTE STRAFTAT ANGEFORDERT WIRD, DANN NUR DEN GESAMTWERT ABRUFEN
+    if ($groupBy !== 'straftat') {
+        $sql .= " AND Straftat_Hauptkategorie = 'Insgesamt'";
+    } else {
+        // Wenn wir nach Kategorie gruppieren (z.B. für einen Balkendiagramm), dann ignorieren wir den Gesamtwert, damit er nicht als riesige Balken erscheint.
+        $sql .= " AND Straftat_Hauptkategorie != 'Insgesamt'";
+    }
+}
+
+
 // Filter
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";

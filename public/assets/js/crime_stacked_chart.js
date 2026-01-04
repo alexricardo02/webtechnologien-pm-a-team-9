@@ -11,7 +11,6 @@ const renderCrimeStackedChart = (chartData) => {
         "Sexualdelikte",
         "Raubdelikte",
         "Widerstand & Angriff",
-        "Insgesamt",
     ];
 
     const grouped = {};

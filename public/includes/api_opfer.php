@@ -7,27 +7,36 @@ if (!$verbindung) {
     exit();
 }
 
+// -- Erhält und bereinigt die Filter, die main.js über die URL sendet, wenn eine Anfrage an die API gestellt wird. -- 
 $jahr = $_GET['jahr'] ?? '';
 $geschlecht = $_GET['geschlecht'] ?? '';
 $straftat = $_GET['straftat'] ?? '';
 $landkreis = $_GET['landkreis'] ?? '';
 $groupBy = $_GET['groupBy'] ?? 'location';
 
-// 1. SQL Basis
-if ($groupBy === 'gender') {
+
+// 1. ABFRAGE ERSTELLEN
+
+// 1.1 -- SQL BASIS ABFRAGE -- 
+// - Die Spalte wird in „name“ umbenannt. So erhält JavaScript unabhängig vom Diagramm immer dieselbe Datenstruktur.
+// - SUM(Wert) als Wert, um alle Zeilen zu addieren, die mit den Filtern übereinstimmen
+if ($groupBy === 'gender') { // Logik für Geschlecht
     $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
-} elseif ($groupBy === 'straftat') {
+} elseif ($groupBy === 'straftat') { // Logik für Straftaten
     $sql = "SELECT Straftat_Hauptkategorie as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
-} elseif ($groupBy === 'altersgruppe') { // <-- NEU: Logik für Altersgruppen
+} elseif ($groupBy === 'altersgruppe') { // Logik für Altersgruppen
     $sql = "SELECT Altersgruppe as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 } else {
     $sql = "SELECT Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 }
 
+// Speichert die tatsächlichen Werte in einer separaten Liste, die später an die Datenbank gesendet wird.
 $params = [];
 $types = "";
 
-// Filter
+// 1.2 -- FILTER --
+// Wenn ein Wert vorhanden ist, füge der Abfrage die Anweisung "AND Spalte = ?" hinzu. -> (Prepared Statements)
+// - $types: Speichert den Datentyp.
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";
     $types .= "i";
@@ -43,31 +52,29 @@ if ($straftat && $straftat !== 'all') {
     $types .= "s";
     $params[] = $straftat;
 }
-
+// main.js sendet die ausgewählten Landkreise als eine einzige, durch Kommas getrennte Textzeichenfolge, zum Beispiel: „Kiel,Berlin,Mainz”. 
 if ($landkreis) {
-    $landkreisArray = explode(',', $landkreis);
-
-    $placeholders = implode(',', array_fill(0, count($landkreisArray), '?'));
-
-    $sql .= " AND Stadt_Landkreis IN ($placeholders)";
-
-    foreach ($landkreisArray as $name) {
-        $types .= "s";
-        $params[] = $name;
-    }
+    // Wir verwenden eine spezielle SQL-Funktion, die eine durch Kommas getrennte Liste durchsucht.
+    $sql .= " AND FIND_IN_SET(Stadt_Landkreis, ?)";
+    // Wir übergeben die vollständige Variable $landkreis („Kiel, Berlin, Mainz“) unverändert.
+    $types .= "s";
+    $params[] = $landkreis;
 }
 
 
-// 2. GROUP BY
+// 1.3 -- GROUP BY --
+// Je nachdem, wie die Daten gruppiert werden sollen, wird die GROUP BY-Klausel angepasst.
 if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";
 } elseif ($groupBy === 'straftat') {
     $sql .= " GROUP BY Straftat_Hauptkategorie, Jahr";
-} elseif ($groupBy === 'altersgruppe') { // <-- NEU: Gruppierung nach Alter
+} elseif ($groupBy === 'altersgruppe') {
     $sql .= " GROUP BY Altersgruppe, Jahr";
 } else {
     $sql .= " GROUP BY Stadt_Landkreis, Jahr";
 }
+
+// 2. PREPARE UND AUSFÜHREN DER ABFRAGE MIT PREPARED STATEMENTS
 
 $stmt = $verbindung->prepare($sql);
 if (!$stmt) {
@@ -83,11 +90,13 @@ $stmt->execute();
 $result = $stmt->get_result();
 $data = [];
 
+// 3. DATEN SAMMELN UND ALS JSON AUSGEBEN
+
 while ($row = $result->fetch_assoc()) {
     $data[] = [
-        "name" => $row['name'],
-        "jahr" => $row['Jahr'],
-        "value" => (int) $row['value']
+        "name" => $row['name'], // Landkreis, Geschlecht, Straftat oder Altersgruppe
+        "jahr" => $row['Jahr'], // Jahr
+        "value" => (int) $row['value'] // Summe der Opferzahlen
     ];
 }
 

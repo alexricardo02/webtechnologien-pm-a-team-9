@@ -1,15 +1,19 @@
-/**
- * Central Data Manager
- * Koordiniert die Datenverarbeitung und die Anwendungsinitialisierung.
- */
+/* Verwaltet die Kommunikation zwischen:
+- den ausgewählten Filtern 
+- dem Abruf von Daten vom Server
+- der Aktualisierung aller visuellen Komponenten
+*/
+
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Filtern der aktuellen Filterwerte aus den Dropdowns
+  // -- ALLE FILTERWERT-ERFASSUNG --
+  // Alle Auswahlen des Benutzers in Echtzeit erfassen (aktuelle Filterwerte)
   const getCurrentFilters = () => {
     const selectedLandkreise = window.selectedLandkreise
       ? Array.from(window.selectedLandkreise)
       : [];
 
+    // Wir bereinigen die Namen (Kleinbuchstaben, Trim)
     const cleanLandkreise = selectedLandkreise.map((name) =>
       DataManager.normalizeName(name)
     );
@@ -23,7 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   };
 
-  // Master Funktion: Lädt Daten und rendert Karte + Grafiken
+  // -- DATEN LADEN & RENDERN FUNKTION --
+  // Master Funktion: Lädt Daten und rendert Karte + Grafiken. Asynchrones Muster/Await
   const loadAndRender = async () => {
     const selectedLandkreise = window.selectedLandkreise || new Set();
     const filters = getCurrentFilters();
@@ -53,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
           fetch(`includes/api_opfer.php?${genderParams.toString()}`),
           fetch(`includes/api_opfer.php?${stackedParams.toString()}`),
         ]);
+
       // in JSON gleich umwandeln
       const [straftatData, ageData, genderData, stackedData] =
         await Promise.all([
@@ -73,31 +79,27 @@ document.addEventListener("DOMContentLoaded", () => {
           fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
         });
 
-
+        // KPIs aktualisieren
         if (window.updateKPI2023) window.updateKPI2023(fRawData);
         if (window.updateKPI2024) window.updateKPI2024(fRawData);
 
-        // Karte und Standard-Charts
+        // Karte aktualisieren
         if (window.initMap) window.initMap(dataState.geoJSON, fIndex);
 
+        // Alle Diagramme aktualisieren
         if (window.initDashboardCharts) window.initDashboardCharts(fRawData);
 
-        // Der Altersverteilungs-Chart
-        if (window.initAgeChart) {
-          window.initAgeChart(ageData);
-        }
+        // Altersverteilungs-Chart aktualisieren (reagiert auf den Altersgruppen-Filter)
+        if (window.initAgeChart) window.initAgeChart(ageData);
 
-        // Der einfache Vergleichschart (reagiert auf den Jahres-Filter)
-        if (window.initCrimeComparisonChart) {
-          window.initCrimeComparisonChart(straftatData);
-        }
+        // Einfache Vergleichschart aktualisieren (reagiert auf den Jahres-Filter)
+        if (window.initCrimeComparisonChart) window.initCrimeComparisonChart(straftatData);
 
+        // Geschlechtsverteilungs-Chart aktualisieren
         if (window.renderGenderChart) window.renderGenderChart(genderData);
 
-        // Der Stacked Chart (ignoriert das gewählte Jahr intern, um immer 2023/24 zu zeigen)
-        if (window.initCrimeStackedChart) {
-          window.initCrimeStackedChart(stackedData);
-        }
+        // Stacked Chart aktualisieren (ignoriert das gewählte Jahr intern, um immer 2023/24 zu zeigen)
+        if (window.initCrimeStackedChart) window.initCrimeStackedChart(stackedData);
       }
     } catch (error) {
       console.error("Fehler beim parallel Laden der Daten:", error);
@@ -134,14 +136,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 }
 
-  // 1. Initial Load
+  // Startladung
   window.refreshDashboard = () => loadAndRender();
   window.refreshDashboard();
-  // 2. Button "Filter anwenden"
-  const applyBtn = document.getElementById("apply-filters"); // Button muss diese ID haben
+
+  // Button "Filter anwenden"
+  const applyBtn = document.getElementById("apply-filters");
   if (applyBtn) {
     applyBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // Seitenneuladen vermeiden, wenn Sie sich in einem Formular befinden
+      e.preventDefault(); // Seitenneuladen vermeiden, wenn man sich in einem Formular befinden
       loadAndRender();
     });
   }

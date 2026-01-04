@@ -56,8 +56,10 @@
             let colorScale = null;
             let limits = null;
 
+            // FARBSKALA ERSTELLEN
+
             if (values.length > 0) {
-                // Scale wird mit quantilen erstellt
+                // Scale wird mit QUANTILEN erstellt
                 limits = chroma.limits(values, 'quantile', 7); 
                 colorScale = chroma.scale('YlOrRd').classes(limits);
             }

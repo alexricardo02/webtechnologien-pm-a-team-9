@@ -85,7 +85,7 @@ if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";
 } elseif ($groupBy === 'straftat') {
     $sql .= " GROUP BY Straftat_Hauptkategorie, Jahr";
-} elseif ($groupBy === 'altersgruppe') { 
+} elseif ($groupBy === 'altersgruppe') {
     $sql .= " GROUP BY Altersgruppe, Jahr";
 } else {
     $sql .= " GROUP BY Gemeindeschluessel, Stadt_Landkreis, Jahr";
@@ -108,9 +108,9 @@ $data = [];
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $item = [
-            "name"  => $row['name'] ?? 'N/A',
-            "jahr"  => $row['Jahr'] ?? null,
-            "value" => isset($row['value']) ? (int)$row['value'] : 0
+            "name" => $row['name'] ?? 'N/A',
+            "jahr" => $row['Jahr'] ?? null,
+            "value" => isset($row['value']) ? (int) $row['value'] : 0
         ];
 
         // 2. Wenn id existiert, fügen wir sie hinzu

@@ -7,8 +7,8 @@
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
 
-        var currentLegend = null;       
-        var currentGeoJsonLayer = null; 
+        var currentLegend = null;
+        var currentGeoJsonLayer = null;
 
         // 2. Leyend Funktion 
         function updateDynamicLegend(values, colorScale, limits) {
@@ -58,7 +58,7 @@
 
             if (values.length > 0) {
                 // Scale wird mit quantilen erstellt
-                limits = chroma.limits(values, 'quantile', 7); 
+                limits = chroma.limits(values, 'quantile', 7);
                 colorScale = chroma.scale('YlOrRd').classes(limits);
             }
 
@@ -69,18 +69,18 @@
 
             // Namen prozessieren und Werte den GeoJSON-Eigenschaften zuweisen
             geoJSONData.features.forEach(function (feature) {
-                var ags = feature.properties.cca_2; 
+                var ags = feature.properties.cca_2;
 
                 var amountOfOpfer = 0;
                 if (opferIndex.hasOwnProperty(ags)) {
                     amountOfOpfer = opferIndex[ags];
                 }
-                
+
                 // Wir speichern den Wert in den Eigenschaften des Features
                 feature.properties.total_opfer = amountOfOpfer;
             });
 
-            
+
 
             if (currentGeoJsonLayer) {
                 map.removeLayer(currentGeoJsonLayer);
@@ -103,8 +103,8 @@
                     layer.bindPopup(
                         "Landkreis: <strong>" + feature.properties.name_2 + "</strong><br>" +
                         "Code (AGS): <code>" + feature.properties.cca_2 + "</code><br>" +
-                        "Gesamt Opfer: " + (feature.properties.total_opfer > 0 
-                            ? feature.properties.total_opfer.toLocaleString('de-DE') 
+                        "Gesamt Opfer: " + (feature.properties.total_opfer > 0
+                            ? feature.properties.total_opfer.toLocaleString('de-DE')
                             : "keine Daten")
                     );
 
@@ -123,7 +123,7 @@
                     var normName = DataManager.normalizeName(feature.properties.name_2);
                     if (window.selectedLandkreise && window.selectedLandkreise.size > 0) {
                         var selectionList = Array.from(window.selectedLandkreise).map(s => DataManager.normalizeName(s));
-                        
+
                         if (selectionList.includes(normName)) {
                             bounds.extend(layer.getBounds());
                             hasSelection = true;
@@ -141,7 +141,7 @@
             } else {
                 map.setView([51.1657, 10.4515], 6);
             }
-            
+
         };
     </script>
 </div>

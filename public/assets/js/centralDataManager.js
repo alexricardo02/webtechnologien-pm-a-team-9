@@ -60,18 +60,15 @@ const DataManager = {
       // Das ist notwendig, damit die Karte schnell auf die Daten zugreifen kann.
       const index = {};
       rawData.forEach((item) => {
-
         if (item.id) {
           // padStart(5, '0') wandelt 5315 en "05315" und behält 11000 als "11000"
-          const ags = String(item.id).padStart(5, '0');
+          const ags = String(item.id).padStart(5, "0");
           const val = parseInt(item.value || 0);
-          
+
           if (!index[ags]) index[ags] = 0;
           index[ags] += val;
         }
       });
-
-      
 
       const resultState = {
         rawData: rawData,
@@ -89,9 +86,9 @@ const DataManager = {
   },
 
   nameMapping: {
-    "hanover": "region hannover",
+    hanover: "region hannover",
     "aschersleben-staßfurt": "aschersleben-stassfurt", // Manejo de ß -> ss
-    "lauenburg": "herzogtum lauenburg",
+    lauenburg: "herzogtum lauenburg",
   },
 
   // Landkreisnamen Normalisierung

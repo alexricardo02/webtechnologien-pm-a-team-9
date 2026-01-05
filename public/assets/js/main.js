@@ -90,6 +90,16 @@ document.addEventListener("DOMContentLoaded", () => {
           fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
         });
 
+        fRawData.forEach((item) => {
+          if (item.id) {
+            // Wir wandlen die DB-ID (z.B. 5315) in einen AGS-Code um (z.B. "05315")
+            const ags = String(item.id).padStart(5, '0');
+            fIndex[ags] = (fIndex[ags] || 0) + parseInt(item.value || 0);
+          }
+        });
+
+        
+
         // 2. Daten für Top/Bottom Rankings (Nutzt globalState.rawData -> Bild 2 Effekt)
         // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
         if (window.initDashboardCharts) {

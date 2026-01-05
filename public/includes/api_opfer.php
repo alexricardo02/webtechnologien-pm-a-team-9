@@ -22,7 +22,7 @@ if ($groupBy === 'gender') {
 } elseif ($groupBy === 'altersgruppe') { // <-- NEU: Logik für Altersgruppen
     $sql = "SELECT Altersgruppe as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 } else {
-    $sql = "SELECT Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+    $sql = "SELECT Gemeindeschluessel as id, Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
 }
 
 $params = [];
@@ -85,10 +85,10 @@ if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";
 } elseif ($groupBy === 'straftat') {
     $sql .= " GROUP BY Straftat_Hauptkategorie, Jahr";
-} elseif ($groupBy === 'altersgruppe') { // <-- NEU: Gruppierung nach Alter
+} elseif ($groupBy === 'altersgruppe') { 
     $sql .= " GROUP BY Altersgruppe, Jahr";
 } else {
-    $sql .= " GROUP BY Stadt_Landkreis, Jahr";
+    $sql .= " GROUP BY Gemeindeschluessel, Stadt_Landkreis, Jahr";
 }
 
 $stmt = $verbindung->prepare($sql);
@@ -105,12 +105,22 @@ $stmt->execute();
 $result = $stmt->get_result();
 $data = [];
 
-while ($row = $result->fetch_assoc()) {
-    $data[] = [
-        "name" => $row['name'],
-        "jahr" => $row['Jahr'],
-        "value" => (int) $row['value']
-    ];
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $item = [
+            "name"  => $row['name'] ?? 'N/A',
+            "jahr"  => $row['Jahr'] ?? null,
+            "value" => isset($row['value']) ? (int)$row['value'] : 0
+        ];
+
+        // 2. Wenn id existiert, fügen wir sie hinzu
+        if (array_key_exists('id', $row)) {
+            $item["id"] = $row['id'];
+        }
+
+        $data[] = $item;
+    }
 }
+
 
 echo json_encode($data);

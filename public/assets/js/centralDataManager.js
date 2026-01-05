@@ -17,7 +17,7 @@ const DataManager = {
   initGeo: async function () {
     if (this.state.geoJSON) return this.state.geoJSON;
     try {
-      const res = await fetch("data/landkreise-in-germany.geojson");
+      const res = await fetch("data/landkreise-in-germany-optimized.json");
       this.state.geoJSON = await res.json();
       return this.state.geoJSON;
     } catch (e) {

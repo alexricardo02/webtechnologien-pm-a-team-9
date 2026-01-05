@@ -87,7 +87,7 @@ $straftat_hauptkategorien = [
                     <option value="Jugendliche 14 bis unter 18 Jahre">Jugendliche 14 - 18 Jahre</option>
                     <option value="Heranwachsende 18 bis unter 21 Jahre">Heranwachsende 18 - 21 Jahre</option>
                     <option value="Erwachsene 21 bis unter 60 Jahre">Erwachsene 21 - 60 Jahre</option>
-                    <option value="Erwachsene 60 Jahre und älter">Erwachsene 60+ Jahre</option>
+                    <option value="Erwachsene 60 Jahre und aelter">Erwachsene 60+ Jahre</option>
                 </select>
             </div>
         </div>

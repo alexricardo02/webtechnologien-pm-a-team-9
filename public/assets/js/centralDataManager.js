@@ -10,18 +10,18 @@ const DataManager = {
   getLandkreisNames: function () {
     if (!this.state.geoJSON) return [];
     // wir extrahieren alle eindeutigen Landkreisnamen aus dem GeoJSON
-    const names = this.state.geoJSON.features.map((f) => f.properties.NAME_3);
+    const names = this.state.geoJSON.features.map((f) => f.properties.name_2);
     return [...new Set(names)].sort();
   },
 
   initGeo: async function () {
     if (this.state.geoJSON) return this.state.geoJSON;
     try {
-      const res = await fetch("data/landkreise.geo.json");
+      const res = await fetch("data/landkreise-in-germany-optimized.json");
       this.state.geoJSON = await res.json();
       return this.state.geoJSON;
     } catch (e) {
-      console.error("Error cargando GeoJSON:", e);
+      console.error("Error loading GeoJSON:", e);
     }
   },
   /**
@@ -60,10 +60,14 @@ const DataManager = {
       // Das ist notwendig, damit die Karte schnell auf die Daten zugreifen kann.
       const index = {};
       rawData.forEach((item) => {
-        const name = item.name.toLowerCase().trim();
-        const val = parseInt(item.value || 0);
-        if (!index[name]) index[name] = 0;
-        index[name] += val;
+        if (item.id) {
+          // padStart(5, '0') wandelt 5315 en "05315" und behält 11000 als "11000"
+          const ags = String(item.id).padStart(5, "0");
+          const val = parseInt(item.value || 0);
+
+          if (!index[ags]) index[ags] = 0;
+          index[ags] += val;
+        }
       });
 
       const resultState = {
@@ -82,9 +86,9 @@ const DataManager = {
   },
 
   nameMapping: {
-    "hanover": "region hannover",
+    hanover: "region hannover",
     "aschersleben-staßfurt": "aschersleben-stassfurt", // Manejo de ß -> ss
-    "lauenburg": "herzogtum lauenburg",
+    lauenburg: "herzogtum lauenburg",
   },
 
   // Landkreisnamen Normalisierung

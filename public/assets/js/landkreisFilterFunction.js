@@ -3,12 +3,25 @@ window.selectedLandkreise = new Set();
 let names = [];
 
 async function setupSearch() {
-  await DataManager.loadMapGeometryFromJson();
-  names = DataManager.getAllLandkreisNamesFromJson();
+  await DataService.loadMapGeometryFromJson();
+  names = DataService.getAllLandkreisNamesFromJson();
   const datalist = document.getElementById("landkreis-list");
   datalist.innerHTML = names.map((n) => `<option value="${n}">`).join("");
 }
 setupSearch();
+
+function landkreisSuchFunktion(data, selectedLandkreise) {
+  if (!selectedLandkreise || selectedLandkreise.size === 0) return data;
+
+  const normalizedSelected = new Set(
+    Array.from(selectedLandkreise).map((s) => DataService.cleanTextForDatabaseMatching(s))
+  );
+
+  return data.filter((item) => {
+    const itemName = DataService.cleanTextForDatabaseMatching(item.name);
+    return normalizedSelected.has(itemName);
+  });
+};
 
 const searchInput = document.getElementById("search-landkreis");
 

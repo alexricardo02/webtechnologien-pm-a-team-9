@@ -1,6 +1,6 @@
 /* Ist dafür zuständig, Daten EINMAL zu laden und sie an diejenigen weiterzugeben, die sie anfordern. */
 
-const DataManager = {
+const DataService = {
   // Hier werden die Daten gespeichert
   state: {
     geoJSON: null, // Karten-Geometrie
@@ -102,16 +102,5 @@ const DataManager = {
     return n;
   },
 
-  landkreisSuchFunktion: function (data, selectedLandkreise) {
-    if (!selectedLandkreise || selectedLandkreise.size === 0) return data;
 
-    const normalizedSelected = new Set(
-      Array.from(selectedLandkreise).map((s) => this.cleanTextForDatabaseMatching(s))
-    );
-
-    return data.filter((item) => {
-      const itemName = this.cleanTextForDatabaseMatching(item.name);
-      return normalizedSelected.has(itemName);
-    });
-  },
 };

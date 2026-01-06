@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const cleanLandkreise = selectedLandkreise.map((name) =>
-      DataManager.cleanTextForDatabaseMatching(name)
+      DataService.cleanTextForDatabaseMatching(name)
     );
 
     // Straftaten aus dem globalen Set holen
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const refreshAllDashboardCharts = async () => {
     const selectedLandkreise = window.selectedLandkreise || new Set();
     const filters = getFiltersFromUI();
-    await DataManager.loadMapGeometryFromJson();
+    await DataService.loadMapGeometryFromJson();
 
     let rankingFilters = {};
     rankingFilters.jahr = filters.jahr;
@@ -75,8 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
         genderResponse,
         stackedResponse,
       ] = await Promise.all([
-        DataManager.getDataFromDatabase(filters), // Gefiltert für Karte/KPIs
-        DataManager.getDataFromDatabase(rankingFilters),
+        DataService.getDataFromDatabase(filters), // Gefiltert für Karte/KPIs
+        DataService.getDataFromDatabase(rankingFilters),
         fetch(`includes/api_opfer.php?${straftatParams.toString()}`),
         fetch(`includes/api_opfer.php?${ageParams.toString()}`),
         fetch(`includes/api_opfer.php?${genderParams.toString()}`),
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (filteredDataState && unfilteredDataState) {
 
         // 1. Daten für Karte & KPIs (reagiert auf ausgewählten Landkreis)
-        const filteredRawData = DataManager.landkreisSuchFunktion(
+        const filteredRawData = landkreisSuchFunktion(
           filteredDataState.rawData,
           selectedLandkreise
         );

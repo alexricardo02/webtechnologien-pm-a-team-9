@@ -40,7 +40,7 @@ $straftat_hauptkategorien = [
   <script src="assets/js/kpi2024.js" defer></script>
   <script src="assets/js/dashboardController.js" defer></script>
   <script src="assets/js/age_chart.js" defer></script>
-  <script src="assets/js/landkreisSuchFilter.js" defer></script>
+  <script src="assets/js/landkreisFilterFunction.js" defer></script>
 </head>
 
 <body>

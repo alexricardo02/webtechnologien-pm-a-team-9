@@ -69,11 +69,11 @@
 
             // Namen prozessieren und Werte den GeoJSON-Eigenschaften zuweisen
             geoJSONData.features.forEach(function (feature) {
-                var ags = feature.properties.cca_2;
+                var gemeindeSchluessel = feature.properties.cca_2;
 
                 var amountOfOpfer = 0;
-                if (opferIndex.hasOwnProperty(ags)) {
-                    amountOfOpfer = opferIndex[ags];
+                if (opferIndex.hasOwnProperty(gemeindeSchluessel)) {
+                    amountOfOpfer = opferIndex[gemeindeSchluessel];
                 }
 
                 // Wir speichern den Wert in den Eigenschaften des Features
@@ -102,7 +102,7 @@
                 onEachFeature: function (feature, layer) {
                     layer.bindPopup(
                         "Landkreis: <strong>" + feature.properties.name_2 + "</strong><br>" +
-                        "Code (AGS): <code>" + feature.properties.cca_2 + "</code><br>" +
+                        "Gemeindeschluessel: <code>" + feature.properties.cca_2 + "</code><br>" +
                         "Gesamt Opfer: " + (feature.properties.total_opfer > 0
                             ? feature.properties.total_opfer.toLocaleString('de-DE')
                             : "keine Daten")
@@ -120,9 +120,9 @@
                     });
 
                     // Zoom logic
-                    var normName = DataManager.normalizeName(feature.properties.name_2);
+                    var normName = DataService.cleanTextForDatabaseMatching(feature.properties.name_2);
                     if (window.selectedLandkreise && window.selectedLandkreise.size > 0) {
-                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataManager.normalizeName(s));
+                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataService.cleanTextForDatabaseMatching(s));
 
                         if (selectionList.includes(normName)) {
                             bounds.extend(layer.getBounds());

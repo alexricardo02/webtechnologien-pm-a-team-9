@@ -144,6 +144,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (el) el.value = "";
       });
 
+      const straftatEl = document.getElementById("filter-straftat");
+      if (straftatEl) straftatEl.value = "";
+
       if (window.selectedLandkreise) window.selectedLandkreise.clear();
       if (typeof renderTags === "function") renderTags();
 

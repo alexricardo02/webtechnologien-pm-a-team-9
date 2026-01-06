@@ -130,7 +130,8 @@ const renderGenderChart = (chartData) => {
                 data: dataValues,
                 backgroundColor: backgroundColors,
                 borderWidth: 2,
-                borderColor: '#ffffff'
+                borderColor: '#ffffff',
+                hoverOffset: 15
             }]
         },
         options: {

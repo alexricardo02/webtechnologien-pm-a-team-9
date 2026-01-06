@@ -120,9 +120,9 @@
                     });
 
                     // Zoom logic
-                    var normName = DataManager.normalizeName(feature.properties.name_2);
+                    var normName = DataManager.cleanTextForDatabaseMatching(feature.properties.name_2);
                     if (window.selectedLandkreise && window.selectedLandkreise.size > 0) {
-                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataManager.normalizeName(s));
+                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataManager.cleanTextForDatabaseMatching(s));
 
                         if (selectionList.includes(normName)) {
                             bounds.extend(layer.getBounds());

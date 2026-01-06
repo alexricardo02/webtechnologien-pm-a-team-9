@@ -5,14 +5,14 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // Filtern der aktuellen Filterwerte aus den Dropdowns
-  const getCurrentFilters = () => {
+  const getFiltersFromUI = () => {
     // Landkreise aus dem globalen Set holen
     const selectedLandkreise = window.selectedLandkreise
       ? Array.from(window.selectedLandkreise)
       : [];
 
     const cleanLandkreise = selectedLandkreise.map((name) =>
-      DataManager.normalizeName(name)
+      DataManager.cleanTextForDatabaseMatching(name)
     );
 
     // NEU: Mehrfachauswahl für Straftaten auslesen
@@ -35,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Master Funktion: Lädt Daten und rendert Karte + Grafiken
-  const loadAndRender = async () => {
+  const refreshAllDashboardCharts = async () => {
     const selectedLandkreise = window.selectedLandkreise || new Set();
-    const filters = getCurrentFilters();
+    const filters = getFiltersFromUI();
     await DataManager.initGeo();
 
     const rankingFilters = { ...filters, landkreis: "" };
@@ -66,8 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
         genderRes,
         stackedRes,
       ] = await Promise.all([
-        DataManager.fetchFilteredData(filters), // Gefiltert für Karte/KPIs
-        DataManager.fetchFilteredData(rankingFilters),
+        DataManager.getDataFromDatabase(filters), // Gefiltert für Karte/KPIs
+        DataManager.getDataFromDatabase(rankingFilters),
         fetch(`includes/api_opfer.php?${straftatParams.toString()}`),
         fetch(`includes/api_opfer.php?${ageParams.toString()}`),
         fetch(`includes/api_opfer.php?${genderParams.toString()}`),
@@ -150,18 +150,18 @@ document.addEventListener("DOMContentLoaded", () => {
       if (window.selectedLandkreise) window.selectedLandkreise.clear();
       if (typeof renderTags === "function") renderTags();
 
-      loadAndRender();
+      refreshAllDashboardCharts();
     });
   }
 
-  window.refreshDashboard = () => loadAndRender();
+  window.refreshDashboard = () => refreshAllDashboardCharts();
   window.refreshDashboard();
 
   const applyBtn = document.getElementById("apply-filters");
   if (applyBtn) {
     applyBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      loadAndRender();
+      refreshAllDashboardCharts();
     });
   }
 });

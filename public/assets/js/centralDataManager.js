@@ -33,7 +33,7 @@ const DataManager = {
    * Hauptfunktion: Lädt alles Notwendige.
    * Gibt ein Versprechen zurück, damit die Karte weiß, wann sie beginnen soll.
    */
-  fetchFilteredData: async function (filters = {}) {
+  getDataFromDatabase: async function (filters = {}) {
     const params = new URLSearchParams();
     if (filters.jahr && filters.jahr !== "all") params.append("jahr", filters.jahr);
     if (filters.geschlecht && filters.geschlecht !== "all") params.append("geschlecht", filters.geschlecht);
@@ -82,14 +82,14 @@ const DataManager = {
       // Alles ausgeben
       return resultPackage;
     } catch (err) {
-      console.error("Error in fetchFilteredData:", err);
+      console.error("Error in getDataFromDatabase:", err);
       return null;
     }
   },
 
 
   // Landkreisnamen Normalisierung
-  normalizeName: function (name) {
+  cleanTextForDatabaseMatching: function (name) {
     if (!name) return "";
     let n = name.toLowerCase().trim();
 
@@ -106,11 +106,11 @@ const DataManager = {
     if (!selectedLandkreise || selectedLandkreise.size === 0) return data;
 
     const normalizedSelected = new Set(
-      Array.from(selectedLandkreise).map((s) => this.normalizeName(s))
+      Array.from(selectedLandkreise).map((s) => this.cleanTextForDatabaseMatching(s))
     );
 
     return data.filter((item) => {
-      const itemName = this.normalizeName(item.name);
+      const itemName = this.cleanTextForDatabaseMatching(item.name);
       return normalizedSelected.has(itemName);
     });
   },

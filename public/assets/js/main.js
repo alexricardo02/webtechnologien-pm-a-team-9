@@ -117,12 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 2. Daten für Top/Bottom Rankings
         // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
-        if (window.initDashboardCharts) window.initDashboardCharts(unfilteredDataState.rawData);
+        if (window.initDashboardCharts) window.initDashboardCharts(unfilteredDataState.rawData, filteredRawData);
         
         // 3. Update Karte und KPIs mit gefilterten Daten
         if (window.updateKPI2023) window.updateKPI2023(filteredRawData);
         if (window.updateKPI2024) window.updateKPI2024(filteredRawData);
-        if (window.initMap) window.initMap(dataState.geoJSON, filteredIndex);
+        if (window.initMap) window.initMap(filteredDataState.geoJSON, filteredIndex);
 
         // 4. Update der restlichen Charts
         if (window.initAgeChart) window.initAgeChart(ageData);

@@ -7,7 +7,7 @@ const DataManager = {
     requestCache: {},
   },
 
-  getLandkreisNames: function () {
+  getAllLandkreisNamesFromJson: function () {
     if (!this.state.geoJSON) return [];
     // wir extrahieren alle eindeutigen Landkreisnamen aus dem GeoJSON
     const names = this.state.geoJSON.features.map((feature) => feature.properties.name_2);

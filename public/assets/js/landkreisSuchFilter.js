@@ -4,7 +4,7 @@ let names = [];
 
 async function setupSearch() {
   await DataManager.loadMapGeometryFromJson();
-  names = DataManager.getLandkreisNames();
+  names = DataManager.getAllLandkreisNamesFromJson();
   const datalist = document.getElementById("landkreis-list");
   datalist.innerHTML = names.map((n) => `<option value="${n}">`).join("");
 }

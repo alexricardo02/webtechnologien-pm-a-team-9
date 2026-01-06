@@ -23,7 +23,6 @@ $straftat_hauptkategorien = [
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
   <script src="assets/js/rankings_charts.js" defer></script>
   <script src="assets/js/gender_chart.js" defer></script>
   <script src="assets/js/kriminalitaets_vergleich_chart.js" defer></script>
@@ -36,11 +35,10 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
   <link rel="stylesheet" href="assets/css/landkreisFilterTag.css">
-
-  <script src="assets/js/centralDataManager.js" defer></script>
+  <script src="assets/js/opferDataService.js" defer></script>
   <script src="assets/js/kpi2023.js" defer></script>
   <script src="assets/js/kpi2024.js" defer></script>
-  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/dashboardController.js" defer></script>
   <script src="assets/js/age_chart.js" defer></script>
   <script src="assets/js/landkreisSuchFilter.js" defer></script>
 </head>

@@ -64,19 +64,43 @@ const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = '
 };
 
 // --- Main Funktion (Durch main.js) ---
-window.initDashboardCharts = function (rawData) {
+window.initDashboardCharts = function (globalData, filteredData) {
 
     // 1. Daten durch Landkreis gruppiern und (Wenn Daten duplikate haben, summieren)
+    let globalAggregation = {};
+    globalData.forEach(item => {
+        let name = item.name;
+        let val = parseInt(item.value || 0);
+        if (!globalAggregation[name]) globalAggregation[name] = 0;
+        globalAggregation[name] += val;
+    });
+
+    // In Array umwandeln 
+    let globalArray = Object.entries(globalAggregation).map(([key, val]) => ({
+        name: key,
+        value: val
+    }));
+
+    
+
+    // 2. Top 5 berechnen
+    let top5 = [...globalArray].sort((a, b) => b.value - a.value).slice(0, 5);
+
+    // 3. Bottom 5 berechnen (nur Werte > 0)
+    let bottom5 = [...globalArray]
+        .filter(i => i.value > 0)
+        .sort((a, b) => a.value - b.value)
+        .slice(0, 5);
+
     let districtAggregation = {};
-    rawData.forEach(item => {
+    filteredData.forEach(item => {
         let name = item.name;
         let val = parseInt(item.value || 0);
         if (!districtAggregation[name]) districtAggregation[name] = 0;
         districtAggregation[name] += val;
     });
 
-    // In Array umwandeln 
-    let aggregatedArray = Object.entries(districtAggregation).map(([key, val]) => ({
+    let filteredArray = Object.entries(districtAggregation).map(([key, val]) => ({
         name: key,
         value: val
     }));
@@ -85,23 +109,14 @@ window.initDashboardCharts = function (rawData) {
     const warningElement = document.getElementById('limitWarning');
     if (warningElement) {
         // Wenn user mehr als 10 Landkreise hat, Warnung anzeigen
-        if (aggregatedArray.length > 10) {
+        if (globalArray.length > 10) {
             warningElement.style.display = 'block';
         } else {
             warningElement.style.display = 'none';
         }
     }
 
-    // 2. Top 5 berechnen
-    let top5 = [...aggregatedArray].sort((a, b) => b.value - a.value).slice(0, 5);
-
-    // 3. Bottom 5 berechnen (nur Werte > 0)
-    let bottom5 = [...aggregatedArray]
-        .filter(i => i.value > 0)
-        .sort((a, b) => a.value - b.value)
-        .slice(0, 5);
-
-    let opferNachLandkreisenBis10 = [...aggregatedArray]
+    let opferNachLandkreisenBis10 = [...filteredArray]
         .filter(i => i.value > 0)
         .sort((a, b) => b.value - a.value)
         .slice(0, 10);

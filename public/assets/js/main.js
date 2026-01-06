@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stackedRes,
       ] = await Promise.all([
         DataManager.fetchFilteredData(filters), // Gefiltert für Karte/KPIs
-        DataManager.fetchFilteredData(rankingFilters), // Ungefiltert für Top/Bottom Charts
+        DataManager.fetchFilteredData(rankingFilters),
         fetch(`includes/api_opfer.php?${straftatParams.toString()}`),
         fetch(`includes/api_opfer.php?${ageParams.toString()}`),
         fetch(`includes/api_opfer.php?${genderParams.toString()}`),
@@ -89,6 +89,10 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedLandkreise
         );
 
+        if (window.initDashboardCharts) {
+          window.initDashboardCharts(globalState.rawData, fRawData);
+        }
+
         const fIndex = {};
         fRawData.forEach((item) => {
           const name = (item.name || "").toLowerCase().trim();
@@ -104,10 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // 2. Daten für Top/Bottom Rankings (Nutzt globalState.rawData -> Bild 2 Effekt)
-        // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
-        if (window.initDashboardCharts) {
-          window.initDashboardCharts(globalState.rawData);
-        }
 
         // 3. Update Karte und KPIs mit gefilterten Daten
         if (window.updateKPI2023) window.updateKPI2023(fRawData);

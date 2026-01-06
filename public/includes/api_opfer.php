@@ -1,4 +1,10 @@
 <?php
+
+/* Die Hauptfunktion besteht darin, die vom Benutzer ausgewählten Filter zu empfangen, 
+ * eine dynamische SQL-Abfrage zu erstellen, diese sicher auszuführen und die Ergebnisse 
+ * im JSON-Format zurückzugeben.
+ */
+
 header('Content-Type: application/json; charset=utf-8');
 include 'db.inc.php';
 
@@ -7,44 +13,79 @@ if (!$verbindung) {
     exit();
 }
 
-$jahr = $_GET['jahr'] ?? '';
-$geschlecht = $_GET['geschlecht'] ?? '';
-$straftat = $_GET['straftat'] ?? '';
-$altersgruppe = $_GET['altersgruppe'] ?? ''; // NEW: Capture Age Filter
-$landkreis = $_GET['landkreis'] ?? '';
-$groupBy = $_GET['groupBy'] ?? 'location';
+// Filter extrahieren
 
-// 1. SQL Basis
-if ($groupBy === 'gender') {
-    $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
-} elseif ($groupBy === 'straftat') {
-    $sql = "SELECT Straftat_Hauptkategorie as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
-} elseif ($groupBy === 'altersgruppe') { // <-- NEU: Logik für Altersgruppen
-    $sql = "SELECT Altersgruppe as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+if (isset($_GET['jahr'])) {
+    $jahr = $_GET['jahr'];
 } else {
-    $sql = "SELECT Gemeindeschluessel as id, Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+    $jahr = "";
 }
 
-$params = [];
-$types = "";
-
-// --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
-if ($straftat && $straftat !== 'all' && $straftat !== '') {
-    $sql .= " AND Straftat_Hauptkategorie = ?";
-    $types .= "s";
-    $params[] = $straftat;
+if (isset($_GET['geschlecht'])) {
+    $geschlecht = $_GET['geschlecht'];
 } else {
-    // WENN KEINE BESTIMMTE STRAFTAT ANGEFORDERT WIRD, DANN NUR DEN GESAMTWERT ABRUFEN
-    if ($groupBy !== 'straftat') {
-        $sql .= " AND Straftat_Hauptkategorie = 'Insgesamt'";
-    } else {
-        // Wenn wir nach Kategorie gruppieren (z.B. für einen Balkendiagramm), dann ignorieren wir den Gesamtwert, damit er nicht als riesige Balken erscheint.
-        $sql .= " AND Straftat_Hauptkategorie != 'Insgesamt'";
-    }
+    $geschlecht = "";
 }
 
+if (isset($_GET['straftat'])) {
+    $straftat = $_GET['straftat'];
+} else {
+    $straftat = "";
+}
 
-// Filter
+if (isset($_GET['altersgruppe'])) {
+    $altersgruppe = $_GET['altersgruppe'];
+} else {
+    $altersgruppe = "";
+}
+
+if (isset($_GET['landkreis'])) {
+    $landkreis = $_GET['landkreis'];
+} else {
+    $landkreis = "";
+}
+// Lege fest, welche Grafik die Daten anfordert. Wenn keine Filter, dann alle Daten für die Karte anfordern.
+if (isset($_GET['groupBy'])) {
+    $groupBy = $_GET['groupBy'];
+} else {
+    $groupBy = "location";
+}
+
+// -- SQL ABFRAGE BILDEN --
+
+
+
+// 1. SQL Basisabfrage
+
+switch ($groupBy) {
+    case "gender": // Für die Gender Grafik
+        $sql = "SELECT Geschlecht as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+        break;
+
+    case "straftat": // Für die Straftaten Grafik
+        $sql = "SELECT Straftat_Hauptkategorie as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+        break;
+
+    case "altersgruppe": // Für die Altersgruppen Grafik
+        $sql = "SELECT Altersgruppe as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+        break;
+
+    default:
+        // Für Karte und Rankings
+        $sql = "SELECT Gemeindeschluessel as id, Stadt_Landkreis as name, Jahr, SUM(Wert) as value FROM Opfer_Data WHERE 1=1";
+        break;
+}
+
+$params = []; // Array, in dem die tatsächlichen Werte der Filter gespeichert werden.
+$types = ""; // Datentypen für PreparedStatemets.
+
+
+
+
+
+// 2. Filter eingeben
+
+
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";
     $types .= "i";
@@ -55,17 +96,26 @@ if ($geschlecht && $geschlecht !== 'all') {
     $types .= "s";
     $params[] = $geschlecht;
 }
-if ($straftat && $straftat !== 'all') {
+// --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
+if ($straftat && $straftat !== 'all' && $straftat !== '') {
     $sql .= " AND Straftat_Hauptkategorie = ?";
     $types .= "s";
     $params[] = $straftat;
+} else {
+    // WENN KEINE BESTIMMTE STRAFTAT ANGEFORDERT WIRD, DANN NUR DEN GESAMTWERT (INSGESAMT) ABRUFEN.
+    if ($groupBy !== 'straftat') {
+        $sql .= " AND Straftat_Hauptkategorie = 'Insgesamt'";
+    } else {
+        // Wenn wir nach Kategorie gruppieren (z.B. für einen Balkendiagramm), dann ignorieren wir den Gesamtwert, damit er nicht als riesige Balken erscheint.
+        $sql .= " AND Straftat_Hauptkategorie != 'Insgesamt'";
+    }
 }
-// Filter: Altersgruppe (NEW - This was missing!)
 if ($altersgruppe && $altersgruppe !== 'all') {
     $sql .= " AND Altersgruppe = ?";
     $types .= "s";
     $params[] = $altersgruppe;
 }
+// Für den Filter $landkreis wird explode verwendet, um die Textliste in ein Array umzuwandeln, und es werden so viele Fragezeichen (?) generiert, wie Bezirke ausgewählt wurden.
 if ($landkreis) {
     $landkreisArray = explode(',', $landkreis);
 
@@ -80,7 +130,10 @@ if ($landkreis) {
 }
 
 
-// 2. GROUP BY
+
+
+// 3. GROUP BY
+
 if ($groupBy === 'gender') {
     $sql .= " GROUP BY Geschlecht, Jahr";
 } elseif ($groupBy === 'straftat') {
@@ -90,6 +143,11 @@ if ($groupBy === 'gender') {
 } else {
     $sql .= " GROUP BY Gemeindeschluessel, Stadt_Landkreis, Jahr";
 }
+
+
+
+
+// 4. Prepared Statements erstellen
 
 $stmt = $verbindung->prepare($sql);
 if (!$stmt) {
@@ -105,22 +163,49 @@ $stmt->execute();
 $result = $stmt->get_result();
 $data = [];
 
+
+
+
+
+// 5. Daten in ein Array schreiben
+
 if ($result) {
     while ($row = $result->fetch_assoc()) {
-        $item = [
-            "name" => $row['name'] ?? 'N/A',
-            "jahr" => $row['Jahr'] ?? null,
-            "value" => isset($row['value']) ? (int) $row['value'] : 0
-        ];
+        $item = array();
 
-        // 2. Wenn id existiert, fügen wir sie hinzu
-        if (array_key_exists('id', $row)) {
+        // name: Landkreisname/Straftat/Altersgruppe/Geschlecht/Location
+        if (isset($row['name'])) {
+            $item["name"] = $row['name'];
+        } else {
+            $item["name"] = "N/A";
+        }
+
+        // jahr
+        if (isset($row['Jahr'])) {
+            $item["jahr"] = $row['Jahr'];
+        } else {
+            $item["jahr"] = null;
+        }
+
+        // wert
+        if (isset($row['value'])) {
+            $item["value"] = (int)$row['value'];
+        } else {
+            $item["value"] = 0;
+        }
+
+        // id (Gemeindeschluessel) nur für die Karte
+        if (isset($row['id'])) {
             $item["id"] = $row['id'];
         }
 
-        $data[] = $item;
+        array_push($data, $item);
     }
 }
 
 
 echo json_encode($data);
+
+
+
+

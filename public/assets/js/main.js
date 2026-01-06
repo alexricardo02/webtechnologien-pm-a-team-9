@@ -1,5 +1,4 @@
 /**
- * Central Data Manager
  * Koordiniert die Datenverarbeitung und die Anwendungsinitialisierung.
  */
 
@@ -7,28 +6,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // Filtern der aktuellen Filterwerte aus den Dropdowns
   const getFiltersFromUI = () => {
     // Landkreise aus dem globalen Set holen
-    const selectedLandkreise = window.selectedLandkreise
-      ? Array.from(window.selectedLandkreise)
-      : [];
+    let selectedLandkreise;
+
+    if (window.selectedLandkreise) {
+        selectedLandkreise = Array.from(window.selectedLandkreise);
+    } else {
+        selectedLandkreise = [];
+    }
 
     const cleanLandkreise = selectedLandkreise.map((name) =>
       DataManager.cleanTextForDatabaseMatching(name)
     );
 
-    // NEU: Mehrfachauswahl für Straftaten auslesen
+    // Straftaten aus dem globalen Set holen
     const straftatSelect = document.getElementById("filter-straftat");
     let selectedCrimes = "";
     if (straftatSelect) {
       selectedCrimes = Array.from(straftatSelect.selectedOptions)
-        .map((opt) => opt.value)
-        .filter((val) => val !== "") // "Alle" ignorieren
+        .map((option) => option.value).filter((value) => value !== "") // "Alle" ignorieren
         .join(",");
     }
+
+
+    // HIER FEHLT MEHRFACHAUSWAHL FUNKTIONALITAT VON ALTERSGRUPPEN
 
     return {
       jahr: document.getElementById("filter-jahr")?.value || "",
       geschlecht: document.getElementById("filter-geschlecht")?.value || "",
-      straftat: selectedCrimes, // Jetzt als kommagetrennte Liste
+      straftat: selectedCrimes,
       altersgruppe: document.getElementById("filter-altersgruppe")?.value || "",
       landkreis: cleanLandkreise.join(","),
     };
@@ -40,7 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const filters = getFiltersFromUI();
     await DataManager.loadMapGeometryFromJson();
 
-    const rankingFilters = { ...filters, landkreis: "" };
+    let rankingFilters = {};
+    rankingFilters.jahr = filters.jahr;
+    rankingFilters.geschlecht = filters.geschlecht;
+    rankingFilters.straftat = filters.straftat;
+    rankingFilters.altersgruppe = filters.altersgruppe;
+    rankingFilters.landkreis = "";
 
     const straftatParams = new URLSearchParams(filters);
     straftatParams.append("groupBy", "straftat");
@@ -51,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const genderParams = new URLSearchParams(filters);
     genderParams.append("groupBy", "gender");
 
-    // Jahres-Filter für Stacked Chart entfernen (2023 vs 2024 Vergleich)
     const stackedParams = new URLSearchParams(filters);
     stackedParams.delete("jahr");
     stackedParams.append("groupBy", "straftat");
@@ -59,12 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       // Laden zusätzlich den globalen Datensatz für die Top/Bottom Rankings
       const [
-        dataState,
-        globalState,
-        straftatRes,
-        ageRes,
-        genderRes,
-        stackedRes,
+        filteredDataState,
+        unfilteredDataState,
+        straftatResponse,
+        ageResponse,
+        genderResponse,
+        stackedResponse,
       ] = await Promise.all([
         DataManager.getDataFromDatabase(filters), // Gefiltert für Karte/KPIs
         DataManager.getDataFromDatabase(rankingFilters),
@@ -76,43 +85,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const [straftatData, ageData, genderData, stackedData] =
         await Promise.all([
-          straftatRes.json(),
-          ageRes.json(),
-          genderRes.json(),
-          stackedRes.json(),
+          straftatResponse.json(),
+          ageResponse.json(),
+          genderResponse.json(),
+          stackedResponse.json(),
         ]);
 
-      if (dataState && globalState) {
+      if (filteredDataState && unfilteredDataState) {
+
         // 1. Daten für Karte & KPIs (reagiert auf ausgewählten Landkreis)
-        const fRawData = DataManager.landkreisSuchFunktion(
-          dataState.rawData,
+        const filteredRawData = DataManager.landkreisSuchFunktion(
+          filteredDataState.rawData,
           selectedLandkreise
         );
 
-        if (window.initDashboardCharts) {
-          window.initDashboardCharts(globalState.rawData, fRawData);
-        }
-
-        const fIndex = {};
-        fRawData.forEach((item) => {
+        // Map von Landkreisnamen zu AGS-Codes
+        const filteredIndex = {};
+        filteredRawData.forEach((item) => {
           const name = (item.name || "").toLowerCase().trim();
-          fIndex[name] = (fIndex[name] || 0) + parseInt(item.value || 0);
+          filteredIndex[name] = (filteredIndex[name] || 0) + parseInt(item.value || 0);
         });
 
-        fRawData.forEach((item) => {
+        filteredRawData.forEach((item) => {
           if (item.id) {
             // Wir wandlen die DB-ID (z.B. 5315) in einen AGS-Code um (z.B. "05315")
             const ags = String(item.id).padStart(5, "0");
-            fIndex[ags] = (fIndex[ags] || 0) + parseInt(item.value || 0);
+            filteredIndex[ags] = (filteredIndex[ags] || 0) + parseInt(item.value || 0);
           }
         });
 
-        // 2. Daten für Top/Bottom Rankings (Nutzt globalState.rawData -> Bild 2 Effekt)
-
+        // 2. Daten für Top/Bottom Rankings
+        // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
+        if (window.initDashboardCharts) window.initDashboardCharts(unfilteredDataState.rawData, filteredRawData);
+        
         // 3. Update Karte und KPIs mit gefilterten Daten
-        if (window.updateKPI2023) window.updateKPI2023(fRawData);
-        if (window.updateKPI2024) window.updateKPI2024(fRawData);
-        if (window.initMap) window.initMap(dataState.geoJSON, fIndex);
+        if (window.updateKPI2023) window.updateKPI2023(filteredRawData);
+        if (window.updateKPI2024) window.updateKPI2024(filteredRawData);
+        if (window.initMap) window.initMap(filteredDataState.geoJSON, filteredIndex);
 
         // 4. Update der restlichen Charts
         if (window.initAgeChart) window.initAgeChart(ageData);
@@ -141,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ];
       dropdowns.forEach((id) => {
         const el = document.getElementById(id);
-        if (el) el.value = "";
+        if (el) el.value = "all";
       });
 
       const straftatEl = document.getElementById("filter-straftat");

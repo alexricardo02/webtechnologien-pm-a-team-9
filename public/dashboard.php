@@ -206,11 +206,9 @@ $straftat_hauptkategorien = [
             <canvas id="opferNachLandkreisenBis10Chart"></canvas>
           </div>
         </div>
-      </div>
 
-      <div class="dashboard-row">
         <div class="dashboard-card chart-card" style="width: 100%; flex: 1;">
-          <div class="chart-placeholder" style="height: 400px; position: relative;">
+          <div class="chart-placeholder">
             <canvas id="ageChart"></canvas>
           </div>
         </div>

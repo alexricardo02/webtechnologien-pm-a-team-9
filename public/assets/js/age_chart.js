@@ -2,6 +2,9 @@ const renderAgeChart = (chartData) => {
   const ctx = document.getElementById("ageChart");
   if (!ctx) return;
 
+  // Check Screen Size
+  const isSmallScreen = window.innerWidth < 768;
+
   if (window.ageChartInstance) {
     window.ageChartInstance.destroy();
   }
@@ -141,18 +144,21 @@ const renderAgeChart = (chartData) => {
       maintainAspectRatio: false,
       cutout: "70%",
       layout: {
-        padding: { top: 20, bottom: 20, left: 60, right: 140 },
+        padding: isSmallScreen 
+          ? { top: 10, bottom: 10, left: 10, right: 10 } 
+          : { top: 20, bottom: 20, left: 60, right: 50 }, 
       },
       plugins: {
         legend: {
           display: true, // Legende ist bei Doughnuts wichtig
-          position: "right",
+          position: isSmallScreen ? "bottom" : "right",
           align: "center",
           labels: {
             boxWidth: 12,
             padding: 15,
             font: {size: 12}
           },
+          usePointStyle: true,
         },
         title: {
           display: true,

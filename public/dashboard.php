@@ -24,7 +24,7 @@ $straftat_hauptkategorien = [
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <script src="assets/js/dashboard_charts.js" defer></script>
+  <script src="assets/js/rankings_charts.js" defer></script>
   <script src="assets/js/gender_chart.js" defer></script>
   <script src="assets/js/kriminalitaets_vergleich_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/style.css">
@@ -199,8 +199,7 @@ $straftat_hauptkategorien = [
       <div class="dashboard-row">
         <div class="dashboard-card chart-card" style="width: 100%; flex: 1;">
           <div id="limitWarning" class="alert-info-mini" style="display: none;">
-            <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen
-            angezeigt.
+            <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 ausgewählten Landkreise mit der höchsten Opferzahl angezeigt.
           </div>
           <div class="chart-placeholder">
             <canvas id="opferNachLandkreisenBis10Chart"></canvas>

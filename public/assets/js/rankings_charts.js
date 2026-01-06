@@ -1,4 +1,12 @@
-
+/**
+ * * ZWECK: Zentralisierung der Logik zur Anzeige von Rankings (Balkendiagramme).
+ * * WARUM SIND SIE ZUSAMMEN?
+ * 1. Wiederverwendung von Code: Alle drei Diagramme verwenden dieselbe Basisfunktion „renderChart” und 
+ * teilen sich Achsenkonfigurationen, Schriftarten und Reaktionsfähigkeit.
+ * 2. Visuelle Konsistenz: Ermöglicht die Verwaltung der Farbpaletten einem einzigen Ort.
+ * 3. Datenverarbeitung: Alle drei Diagramme arbeiten mit dem gleichen Format „rawData”, 
+ * wodurch die Aggregation und Filterung in einem einzigen logischen Ablauf erfolgen kann.
+ */
 
 const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = 'x', showTitle = true, minHeight = 350) => {
     const ctx = document.getElementById(elementId);
@@ -47,14 +55,14 @@ const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = '
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: (indexAxis === 'x' ? 'Opferzahl' : '')
+                        text: (indexAxis === 'x' ? '' : 'Opferzahl')
                     }
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: (indexAxis === 'y' ? 'Opferzahl' : '')
+                        text: (indexAxis === 'y' ? '' : 'Opferzahl')
                     },
                     grid: { display: false }
                 }
@@ -64,19 +72,43 @@ const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = '
 };
 
 // --- Main Funktion (Durch main.js) ---
-window.initDashboardCharts = function (rawData) {
+window.initDashboardCharts = function (globalData, filteredData) {
 
     // 1. Daten durch Landkreis gruppiern und (Wenn Daten duplikate haben, summieren)
+    let globalAggregation = {};
+    globalData.forEach(item => {
+        let name = item.name;
+        let val = parseInt(item.value || 0);
+        if (!globalAggregation[name]) globalAggregation[name] = 0;
+        globalAggregation[name] += val;
+    });
+
+    // In Array umwandeln 
+    let globalArray = Object.entries(globalAggregation).map(([key, val]) => ({
+        name: key,
+        value: val
+    }));
+
+    
+
+    // 2. Top 5 berechnen
+    let top5 = [...globalArray].sort((a, b) => b.value - a.value).slice(0, 5);
+
+    // 3. Bottom 5 berechnen (nur Werte > 0)
+    let bottom5 = [...globalArray]
+        .filter(i => i.value > 0)
+        .sort((a, b) => a.value - b.value)
+        .slice(0, 5);
+
     let districtAggregation = {};
-    rawData.forEach(item => {
+    filteredData.forEach(item => {
         let name = item.name;
         let val = parseInt(item.value || 0);
         if (!districtAggregation[name]) districtAggregation[name] = 0;
         districtAggregation[name] += val;
     });
 
-    // In Array umwandeln 
-    let aggregatedArray = Object.entries(districtAggregation).map(([key, val]) => ({
+    let filteredArray = Object.entries(districtAggregation).map(([key, val]) => ({
         name: key,
         value: val
     }));
@@ -85,23 +117,14 @@ window.initDashboardCharts = function (rawData) {
     const warningElement = document.getElementById('limitWarning');
     if (warningElement) {
         // Wenn user mehr als 10 Landkreise hat, Warnung anzeigen
-        if (aggregatedArray.length > 10) {
+        if (globalArray.length > 10) {
             warningElement.style.display = 'block';
         } else {
             warningElement.style.display = 'none';
         }
     }
 
-    // 2. Top 5 berechnen
-    let top5 = [...aggregatedArray].sort((a, b) => b.value - a.value).slice(0, 5);
-
-    // 3. Bottom 5 berechnen (nur Werte > 0)
-    let bottom5 = [...aggregatedArray]
-        .filter(i => i.value > 0)
-        .sort((a, b) => a.value - b.value)
-        .slice(0, 5);
-
-    let opferNachLandkreisenBis10 = [...aggregatedArray]
+    let opferNachLandkreisenBis10 = [...filteredArray]
         .filter(i => i.value > 0)
         .sort((a, b) => b.value - a.value)
         .slice(0, 10);
@@ -111,7 +134,7 @@ window.initDashboardCharts = function (rawData) {
     const bottom5_colors = ['#00B4D8', '#48C9B0', '#76D7C4', '#A9CCE3', '#D6EAF8'];
     const bis10_colors = ['#023E8A', '#0077B6', '#0096C7', '#00B4D8', '#48CAE4', '#90E0EF', '#ADE8F4', '#CAF0F8', '#E0FBFC', '#F1FAFF'];
 
-    renderChart('top5chart', top5, 'Top 5 Landkreise', top5_colors, 'y');
-    renderChart('bottom5chart', bottom5, 'Bottom 5 Landkreise', bottom5_colors, 'y');
+    renderChart('top5chart', top5, 'Top 5: Landkreise mit der höchsten Inzidenz', top5_colors, 'y');
+    renderChart('bottom5chart', bottom5, 'Top 5: Landkreise mit der geringsten Inzidenz', bottom5_colors, 'y');
     renderChart('opferNachLandkreisenBis10Chart', opferNachLandkreisenBis10, 'Opferzahlen nach Landkreisen', bis10_colors, 'y', true, 400);
 };

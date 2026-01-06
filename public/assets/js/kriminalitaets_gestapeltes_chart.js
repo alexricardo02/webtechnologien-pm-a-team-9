@@ -69,7 +69,7 @@ const renderCrimeStackedChart = (chartData) => {
                 y: {
                     stacked: true,
                     beginAtZero: true,
-                    title: { display: true, text: "Anzahl Opfer" },
+                    title: { display: true, text: "Opferzahl" },
                     ticks: {
                         // Tausendertrennzeichen für die Achse
                         callback: (value) => value.toLocaleString('de-DE')

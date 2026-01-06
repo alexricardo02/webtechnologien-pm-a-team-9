@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stackedResponse,
       ] = await Promise.all([
         DataManager.fetchFilteredData(filters), // Gefiltert für Karte/KPIs
-        DataManager.fetchFilteredData(rankingFilters), // Ungefiltert für Top/Bottom Charts
+        DataManager.fetchFilteredData(rankingFilters),
         fetch(`includes/api_opfer.php?${straftatParams.toString()}`),
         fetch(`includes/api_opfer.php?${ageParams.toString()}`),
         fetch(`includes/api_opfer.php?${genderParams.toString()}`),
@@ -153,6 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const el = document.getElementById(id);
         if (el) el.value = "";
       });
+
+      const straftatEl = document.getElementById("filter-straftat");
+      if (straftatEl) straftatEl.value = "";
 
       if (window.selectedLandkreise) window.selectedLandkreise.clear();
       if (typeof renderTags === "function") renderTags();

@@ -1,4 +1,12 @@
-
+/**
+ * * ZWECK: Zentralisierung der Logik zur Anzeige von Rankings (Balkendiagramme).
+ * * WARUM SIND SIE ZUSAMMEN?
+ * 1. Wiederverwendung von Code: Alle drei Diagramme verwenden dieselbe Basisfunktion „renderChart” und 
+ * teilen sich Achsenkonfigurationen, Schriftarten und Reaktionsfähigkeit.
+ * 2. Visuelle Konsistenz: Ermöglicht die Verwaltung der Farbpaletten einem einzigen Ort.
+ * 3. Datenverarbeitung: Alle drei Diagramme arbeiten mit dem gleichen Format „rawData”, 
+ * wodurch die Aggregation und Filterung in einem einzigen logischen Ablauf erfolgen kann.
+ */
 
 const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = 'x', showTitle = true, minHeight = 350) => {
     const ctx = document.getElementById(elementId);

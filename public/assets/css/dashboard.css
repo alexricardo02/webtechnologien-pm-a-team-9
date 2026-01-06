@@ -46,9 +46,30 @@ body {
     /* Erlaubt das Umbrechen auf kleinen Screens */
     gap: 30px;
     /* Gap between map and card */
-    align-items: flex-start;
+    align-items: stretch;
     /* Makes both boxes the same height */
     margin-bottom: 30px;
+    
+    
+}
+
+.chart-placeholder {
+    /* Definimos una altura estándar aquí para todos */
+    width: 100%;
+    position: relative;
+    /* Esto asegura que el gráfico intente llenar el espacio */
+    flex-grow: 1; 
+}
+
+.dashboard-card.chart-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Ambas tarjetas crecen igual */
+    min-width: 0; /* Evita que el contenido desborde el flex */
+}
+
+.chart-placeholder canvas {
+    max-height: 400px;
 }
 
 .dashboard-card h3 {

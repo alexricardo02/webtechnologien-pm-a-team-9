@@ -3,7 +3,7 @@ window.selectedLandkreise = new Set();
 let names = [];
 
 async function setupSearch() {
-  await DataManager.initGeo();
+  await DataManager.loadMapGeometryFromJson();
   names = DataManager.getLandkreisNames();
   const datalist = document.getElementById("landkreis-list");
   datalist.innerHTML = names.map((n) => `<option value="${n}">`).join("");

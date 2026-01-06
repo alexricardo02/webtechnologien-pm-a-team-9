@@ -16,7 +16,7 @@ const DataManager = {
 
 
   /* Lädt die Karten-Datei (GeoJSON) */
-  initGeo: async function () {
+  loadMapGeometryFromJson: async function () {
     if (this.state.geoJSON) return this.state.geoJSON;
     try {
       let response = await fetch("data/landkreise-in-germany-optimized.json");

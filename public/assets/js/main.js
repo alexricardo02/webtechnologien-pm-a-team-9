@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const refreshAllDashboardCharts = async () => {
     const selectedLandkreise = window.selectedLandkreise || new Set();
     const filters = getFiltersFromUI();
-    await DataManager.initGeo();
+    await DataManager.loadMapGeometryFromJson();
 
     const rankingFilters = { ...filters, landkreis: "" };
 

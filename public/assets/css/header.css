@@ -69,3 +69,28 @@ body {
     font-size: 1.2rem;
     transition: color 0.3s ease;
 }
+
+/* Mobile Optimierung für die Navigation */
+@media (max-width: 600px) {
+    .header {
+        padding: 0 1rem; 
+    }
+
+    .title-text {
+        font-size: 1.1rem; 
+    }
+
+    .nav-label {
+        display: none; 
+    }
+
+    .navbarLink i {
+        font-size: 1.4rem;
+        color: white;
+    }
+
+    .navbarItem {
+        display: flex;
+        align-items: center;
+    }
+}

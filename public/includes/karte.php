@@ -116,6 +116,9 @@
                         },
                         mouseout: function (e) {
                             currentGeoJsonLayer.resetStyle(e.target);
+                        },
+                        click: function(e) {
+                            map.setActiveArea ? map.setView(e.latlng) : null;
                         }
                     });
 

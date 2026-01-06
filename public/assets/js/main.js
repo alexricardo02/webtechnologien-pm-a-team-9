@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ];
       dropdowns.forEach((id) => {
         const el = document.getElementById(id);
-        if (el) el.value = "";
+        if (el) el.value = "all";
       });
 
       const straftatEl = document.getElementById("filter-straftat");

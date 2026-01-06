@@ -199,8 +199,7 @@ $straftat_hauptkategorien = [
       <div class="dashboard-row">
         <div class="dashboard-card chart-card" style="width: 100%; flex: 1;">
           <div id="limitWarning" class="alert-info-mini" style="display: none;">
-            <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 Landkreise mit den höchsten Opferzahlen
-            angezeigt.
+            <i class="fas fa-info-circle"></i> Hinweis: Es werden nur die 10 ausgewählten Landkreise mit der höchsten Opferzahl angezeigt.
           </div>
           <div class="chart-placeholder">
             <canvas id="opferNachLandkreisenBis10Chart"></canvas>

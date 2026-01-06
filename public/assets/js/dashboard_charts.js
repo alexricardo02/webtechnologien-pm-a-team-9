@@ -126,7 +126,7 @@ window.initDashboardCharts = function (globalData, filteredData) {
     const bottom5_colors = ['#00B4D8', '#48C9B0', '#76D7C4', '#A9CCE3', '#D6EAF8'];
     const bis10_colors = ['#023E8A', '#0077B6', '#0096C7', '#00B4D8', '#48CAE4', '#90E0EF', '#ADE8F4', '#CAF0F8', '#E0FBFC', '#F1FAFF'];
 
-    renderChart('top5chart', top5, 'Top 5 Landkreise', top5_colors, 'y');
-    renderChart('bottom5chart', bottom5, 'Bottom 5 Landkreise', bottom5_colors, 'y');
+    renderChart('top5chart', top5, 'Top 5: Landkreise mit der höchsten Inzidenz', top5_colors, 'y');
+    renderChart('bottom5chart', bottom5, 'Top 5: Landkreise mit der geringsten Inzidenz', bottom5_colors, 'y');
     renderChart('opferNachLandkreisenBis10Chart', opferNachLandkreisenBis10, 'Opferzahlen nach Landkreisen', bis10_colors, 'y', true, 400);
 };

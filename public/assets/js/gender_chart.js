@@ -139,9 +139,8 @@ const renderGenderChart = (chartData) => {
             maintainAspectRatio: false,
             cutout: '70%',
             layout: {
-
                 padding: {
-                    top: 20,
+                    top: 10,
                     bottom: 20,
                     left: 60,
                     right: 60
@@ -179,7 +178,11 @@ const renderGenderChart = (chartData) => {
                 title: {
                     display: true,
                     text: 'Opferverteilung nach Geschlecht',
-                    font: { size: 15, weight: 'bold' }
+                    font: { size: 15, weight: 'bold' },
+                    padding: {
+                        top: 10,
+                        bottom: 40
+                    }
                 },
                 tooltip: {
                     enabled: true 

@@ -55,14 +55,14 @@ const renderChart = (elementId, chartData, titleText, colorScheme, indexAxis = '
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: (indexAxis === 'x' ? 'Opferzahl' : '')
+                        text: (indexAxis === 'x' ? '' : 'Opferzahl')
                     }
                 },
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: (indexAxis === 'y' ? 'Opferzahl' : '')
+                        text: (indexAxis === 'y' ? '' : 'Opferzahl')
                     },
                     grid: { display: false }
                 }

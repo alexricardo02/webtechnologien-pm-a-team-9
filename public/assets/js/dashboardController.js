@@ -9,7 +9,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Filtern der aktuellen Filterwerte aus dem UI
   const getFiltersFromUI = () => {
-    // Landkreise aus dem globalen Set holen
+    // Landkreise aus dem globalen Set von landkreisSuchFunktion holen
     let selectedLandkreise;
     if (window.selectedLandkreise) {
       selectedLandkreise = Array.from(window.selectedLandkreise);
@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const mapLandkreisNamenZuGemeindeschluessel = (listeZuAusfuellen, filteredRawData) => {
-
     filteredRawData.forEach((landkreis) => {
       const name = (landkreis.name || "").toLowerCase().trim();
       listeZuAusfuellen[name] = (listeZuAusfuellen[name] || 0) + parseInt(landkreis.value || 0);
@@ -57,12 +56,12 @@ document.addEventListener("DOMContentLoaded", () => {
     await DataService.loadMapGeometryFromJson();
 
     // Filterparameter für Aufruf erzeugen
-    let rankingFilters = {
+    let staticRankingsFilters = {
       jahr: filters.jahr,
       geschlecht: filters.geschlecht,
       straftat: filters.straftat,
       altersgruppe: filters.altersgruppe,
-      landkreis: filters.landkreis,
+      landkreis: "",
       groupBy: "landkreis",
     };
 
@@ -96,36 +95,38 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const [
         filteredDataState,
-        unfilteredDataState, // Daten für Top5/Bottom5 Rankings
+        staticRankingsDataState, // Daten für Top5/Bottom5 Rankings
         straftatState,
         ageState,
         genderState,
       ] = await Promise.all([
         DataService.getDataFromDatabase(filters),
-        DataService.getDataFromDatabase(rankingFilters), // Aufruf für Top5/Bottom5 Rankings
+        DataService.getDataFromDatabase(staticRankingsFilters), // Aufruf für Top5/Bottom5 Rankings
         DataService.getDataFromDatabase(straftatParameters),
         DataService.getDataFromDatabase(ageParameters),
         DataService.getDataFromDatabase(genderParameters),
       ]);
 
-      if (filteredDataState && unfilteredDataState && straftatState && ageState && genderState) {
+      if (filteredDataState && staticRankingsDataState && straftatState && ageState && genderState) {
+        // --- 1. RAW DATA EXTRAHIEREN ---
         const straftatData = straftatState.rawData;
         const ageData = ageState.rawData;
         const genderData = genderState.rawData;
+        const staticRankingsData = staticRankingsDataState.rawData;
         const filteredRawData = landkreisSuchFunktion(filteredDataState.rawData, selectedLandkreise); // Daten für Karte & KPIs (reagiert auf ausgewählten Landkreis)
 
         // Map von Landkreisnamen zu Gemeindeschluessel  (listeZuAusfuellen, filteredRawData)
         const indexVonLandkreisnamenUndOpferzahlen = {};
         mapLandkreisNamenZuGemeindeschluessel(indexVonLandkreisnamenUndOpferzahlen, filteredRawData);
 
+        // --- 2. DATEN AN GRAFIKEN SENDEN ---
+
         // 2. Daten für Top/Bottom Rankings
-        // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
-        window.initRankingCharts(unfilteredDataState.rawData, filteredRawData);
-        // 3. Update Karte und KPIs mit gefilterten Daten
+        // Hier schicken wir die Daten ohne Filterung für Top5/Bottom5 Rankings und die gefilterten Daten für die Top 10 Landkreise.
+        window.initRankingCharts(staticRankingsData, filteredRawData);
         window.updateKPI2023(filteredRawData);
         window.updateKPI2024(filteredRawData);
         window.initMap(filteredDataState.geoJSON, indexVonLandkreisnamenUndOpferzahlen);
-        // 4. Update der restlichen Charts
         window.initAgeChart(ageData);
         window.initCrimeComparisonChart(straftatData);
         window.renderGenderChart(genderData);

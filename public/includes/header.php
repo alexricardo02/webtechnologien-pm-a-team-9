@@ -6,7 +6,11 @@
 
         <nav class="headerMenu" role="navigation">
             <ul class="navbarList">
-                <li class="navbarItem"><a href="dashboard.php" class="navbarLink">Dashboard</a></li>
+                <li class="navbarItem">
+                    <a href="dashboard.php" class="navbarLink">
+                        <i class="fas fa-chart-line"></i> <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 

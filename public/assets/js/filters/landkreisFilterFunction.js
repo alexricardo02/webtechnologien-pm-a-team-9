@@ -14,12 +14,12 @@ function landkreisSuchFunktion(data, selectedLandkreise) {
   if (!selectedLandkreise || selectedLandkreise.size === 0) return data;
 
   const normalizedSelected = new Set(
-    Array.from(selectedLandkreise).map((s) => DataService.cleanTextForDatabaseMatching(s))
+    Array.from(selectedLandkreise).map((s) => DataService.cleanLandkreiseTextForDatabaseMatching(s))
   );
 
-  return data.filter((item) => {
-    const itemName = DataService.cleanTextForDatabaseMatching(item.name);
-    return normalizedSelected.has(itemName);
+  return data.filter((landkreis) => {
+    const LandkreisName = DataService.cleanLandkreiseTextForDatabaseMatching(landkreis.name);
+    return normalizedSelected.has(LandkreisName);
   });
 };
 

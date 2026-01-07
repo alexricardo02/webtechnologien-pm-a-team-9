@@ -1,10 +1,16 @@
-/* Ist dafür zuständig, Daten EINMAL zu laden und sie an diejenigen weiterzugeben, die sie anfordern. */
+/* 
+
+Diese Datei verarbeitet ausschließlich Daten:
+
+- Es sendet die aktuellen Filter eines Aufrufs an api_opfer.
+- Es empfängt die Daten und übergibt ein Daten-Paket an den Dashboard-Controller
+*/
 
 const DataService = {
-  // Hier werden die Daten gespeichert
+  // Hier werden die Cache-Daten gespeichert
   state: {
     geoJSON: null, // Karten-Geometrie
-    requestCache: {},
+    requestCache: {}, // Cache
   },
 
   getAllLandkreisNamesFromJson: function () {
@@ -34,50 +40,57 @@ const DataService = {
    * Gibt ein Versprechen zurück, damit die Karte weiß, wann sie beginnen soll.
    */
   getDataFromDatabase: async function (filters = {}) {
+    // Parameters für Cache und Aufruf URL
     const params = new URLSearchParams();
     if (filters.jahr && filters.jahr !== "all") params.append("jahr", filters.jahr);
     if (filters.geschlecht && filters.geschlecht !== "all") params.append("geschlecht", filters.geschlecht);
-    if (filters.straftat && filters.straftat !== "all") params.append("straftat", filters.straftat);
-    if (filters.landkreis && filters.landkreis !== "all") params.append("landkreis", filters.landkreis);
+    if (filters.straftat && filters.straftat !== "") params.append("straftat", filters.straftat);
+    if (filters.landkreis && filters.landkreis !== "") params.append("landkreis", filters.landkreis);
     if (filters.altersgruppe && filters.altersgruppe !== "all") params.append("altersgruppe", filters.altersgruppe);
+    if (filters.groupBy) params.append("groupBy", filters.groupBy);
 
-    const cacheKey = params.toString(); // Für unsere dictionary-Zwischenspeicherung
+    const parametersForURL = params.toString(); // Für unsere dictionary-Zwischenspeicherung
 
-    // Cache lesen
-    if (this.state.requestCache[cacheKey]) {
-      return this.state.requestCache[cacheKey];
+    // Cache lesen und falls möglich, nur Daten von Cache ausgeben und Funktion beenden
+    if (this.state.requestCache[parametersForURL]) {
+      return this.state.requestCache[parametersForURL];
     }
 
-    const url = `includes/api_opfer.php?${cacheKey}`;
+    // URL zusammensetzen
+    const URL = `includes/api_opfer.php?${parametersForURL}`;
 
     try {
-      const response = await fetch(url);
+      // Daten aufrufen
+      const response = await fetch(URL);
       const rawData = await response.json();
 
+      // Wir machen ein Paket mit allen wichtigen Informationen.
+      let resultPackage = { rawData: rawData };
+
+      // Wenn Daten für Karte abgefragt werden sollen
+      const datenFurKarteNotwendig = !filters.groupBy || filters.groupBy === "landkreis";
+
       // Prozessieren bei der Client (Für die Karte gruppieren)
-      // Wir wandeln die rohen Daten in ein schneller zu nutzendes Format um. (Objekt)
+      // Wir wandeln die rohen Daten in ein schneller zu nutzendes Format um. (Index Objekt)
       // Das ist notwendig, damit die Karte schnell auf die Daten zugreifen kann.
-      const index = {};
-      rawData.forEach((item) => {
-        if (item.id) {
-          // padStart(5, '0') wandelt 5315 in "05315" und behält 11000 als "11000"
-          const gemeindeSchluessel = String(item.id).padStart(5, "0");
-          const val = parseInt(item.value || 0);
-
-          if (!index[gemeindeSchluessel]) index[gemeindeSchluessel] = 0;
-          index[gemeindeSchluessel] += val;
-        }
-      });
-
-      // Wir schnüren ein Paket mit allen wichtigen Informationen
-      const resultPackage = {
-        rawData: rawData,
-        opferIndex: index,
-        geoJSON: this.state.geoJSON,
-      };
+      if (datenFurKarteNotwendig) {
+        const index = {};
+        rawData.forEach((item) => {
+          if (item.id) {
+            const gemeindeSchluessel = String(item.id).padStart(5, "0");
+            const val = parseInt(item.value || 0);
+            if (!index[gemeindeSchluessel]) index[gemeindeSchluessel] = 0;
+            index[gemeindeSchluessel] += val;
+          }
+        });
+        
+        // Wir machen ein Paket mit Index und GeoJson Daten für die Karte
+        resultPackage.opferIndex = index;
+        resultPackage.geoJSON = this.state.geoJSON;
+      }
       
       // Paket im Cache speichern, damit wir es beim nächsten Mal schneller haben
-      this.state.requestCache[cacheKey] = resultPackage;
+      this.state.requestCache[parametersForURL] = resultPackage;
       
       // Alles ausgeben
       return resultPackage;
@@ -89,7 +102,7 @@ const DataService = {
 
 
   // Landkreisnamen Normalisierung
-  cleanTextForDatabaseMatching: function (name) {
+  cleanLandkreiseTextForDatabaseMatching: function (name) {
     if (!name) return "";
     let n = name.toLowerCase().trim();
 
@@ -101,6 +114,5 @@ const DataService = {
 
     return n;
   },
-
 
 };

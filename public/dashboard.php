@@ -7,6 +7,16 @@ $straftat_hauptkategorien = [
   "Raubdelikte" => "Raubdelikte",
   "Widerstand & Angriff" => "Widerstand & Angriff"
 ];
+
+$altersgruppen_hauptkategorien = [
+  "Alle Altersgruppen" => "",
+  "Kinder bis unter 6 Jahre" => "Kinder bis unter 6 Jahre",
+  "Kinder 6 bis unter 14 Jahre" => "Kinder 6 bis unter 14 Jahre",
+  "Jugendliche 14 bis unter 18 Jahre" => "Jugendliche 14 bis unter 18 Jahre",
+  "Heranwachsende 18 bis unter 21 Jahre" => "Heranwachsende 18 bis unter 21 Jahre",
+  "Erwachsene 21 bis unter 60 Jahre" => "Erwachsene 21 bis unter 60 Jahre",
+  "Erwachsene 60 Jahre und aelter" => "Erwachsene 60 Jahre und aelter"
+]
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -23,11 +33,7 @@ $straftat_hauptkategorien = [
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js/rankings_charts.js" defer></script>
-  <script src="assets/js/gender_chart.js" defer></script>
-  <script src="assets/js/kriminalitaets_vergleich_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/style.css">
-  <script src="assets/js/kriminalitaets_gestapeltes_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/header.css">
   <link rel="stylesheet" href="assets/css/karte.css">
   <link rel="stylesheet" href="assets/css/kpi.css">
@@ -35,12 +41,18 @@ $straftat_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
   <link rel="stylesheet" href="assets/css/landkreisFilterTag.css">
+  <script src="assets/js/charts/rankings_charts.js" defer></script>
+  <script src="assets/js/charts/gender_chart.js" defer></script>
+  <script src="assets/js/charts/kriminalitaets_vergleich_chart.js" defer></script>
+  <script src="assets/js/charts/kriminalitaets_gestapeltes_chart.js" defer></script>
   <script src="assets/js/opferDataService.js" defer></script>
-  <script src="assets/js/kpi2023.js" defer></script>
-  <script src="assets/js/kpi2024.js" defer></script>
+  <script src="assets/js/charts/kpi2023.js" defer></script>
+  <script src="assets/js/charts/kpi2024.js" defer></script>
   <script src="assets/js/dashboardController.js" defer></script>
-  <script src="assets/js/age_chart.js" defer></script>
-  <script src="assets/js/landkreisFilterFunction.js" defer></script>
+  <script src="assets/js/charts/age_chart.js" defer></script>
+  <script src="assets/js/filters/landkreisFilterFunction.js" defer></script>
+  <script src="assets/js/filters/straftatenFilterFunction.js" defer></script>
+  <script src="assets/js/filters/altersgruppenFilterFunction.js" defer></script>
 </head>
 
 <body>
@@ -79,18 +91,16 @@ $straftat_hauptkategorien = [
             <label for="filter-altersgruppe">Altersgruppe</label>
             <div class="select-wrapper">
                 <select id="filter-altersgruppe" class="styled-select">
-                    <option value="all">Alle Altersgruppen</option>
-                    <option value="Kinder bis unter 6 Jahre">Kinder unter 6 Jahren</option>
-                    <option value="Kinder 6  bis unter 14 Jahre">Kinder 6 bis unter 14 Jahren</option>
-                    <option value="Jugendliche 14 bis unter 18 Jahre">Jugendliche 14 - 18 Jahre</option>
-                    <option value="Heranwachsende 18 bis unter 21 Jahre">Heranwachsende 18 - 21 Jahre</option>
-                    <option value="Erwachsene 21 bis unter 60 Jahre">Erwachsene 21 - 60 Jahre</option>
-                    <option value="Erwachsene 60 Jahre und aelter">Erwachsene 60+ Jahre</option>
+                    <?php
+                    foreach ($altersgruppen_hauptkategorien as $label => $value) {
+                      echo "<option value=\"" . htmlspecialchars($value) . "\">" . htmlspecialchars($label) . "</option>";
+                    }
+                    ?>
                 </select>
             </div>
         </div>
 
-        <div class="filter-group-vertical">
+        <div class="filter-group-vertical"> 
           <label for="filter-straftat">Straftat</label>
           <select id="filter-straftat" class="styled-select">
             <?php
@@ -114,7 +124,10 @@ $straftat_hauptkategorien = [
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
         <button id="reset-filters" class="button-secondary-block">Filter zurücksetzen</button>
 
+        <div id="selected-altersgruppen-tags-container"></div>
+        <div id="selected-straftaten-tags-container"></div>
         <div id="selected-tags-container"></div>
+        
       </div>
     </aside>
 

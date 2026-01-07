@@ -1,135 +1,141 @@
 /**
- * Koordiniert die Datenverarbeitung und die Anwendungsinitialisierung.
+ * Diese Datei verwaltet nur die Elemente des Dashboards:
+ * 
+ * - Empfängt die gruppierten Datenpakete vom Service.
+ * - Sendet die Daten für jedes Diagramm separat und aktualisiert sie.
+ * 
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Filtern der aktuellen Filterwerte aus den Dropdowns
+  // Filtern der aktuellen Filterwerte aus dem UI
   const getFiltersFromUI = () => {
-    // Landkreise aus dem globalen Set holen
+    // Landkreise aus dem globalen Set von landkreisFilterFunktion holen
     let selectedLandkreise;
-
     if (window.selectedLandkreise) {
-        selectedLandkreise = Array.from(window.selectedLandkreise);
+      selectedLandkreise = Array.from(window.selectedLandkreise);
     } else {
-        selectedLandkreise = [];
+      selectedLandkreise = [];
     }
 
-    const cleanLandkreise = selectedLandkreise.map((name) =>
-      DataService.cleanTextForDatabaseMatching(name)
+    let straftatString = "";
+    if (window.selectedStraftaten) {
+      straftatString = Array.from(window.selectedStraftaten).join(",");
+    }
+
+    let altersgruppeString = "";
+    if (window.selectedAltersgruppen) {
+      altersgruppeString = Array.from(window.selectedAltersgruppen).join(",");
+    }
+
+    const cleanLandkreiseNamen = selectedLandkreise.map((name) =>
+      DataService.cleanLandkreiseTextForDatabaseMatching(name)
     );
-
-    // Straftaten aus dem globalen Set holen
-    const straftatSelect = document.getElementById("filter-straftat");
-    let selectedCrimes = "";
-    if (straftatSelect) {
-      selectedCrimes = Array.from(straftatSelect.selectedOptions)
-        .map((option) => option.value).filter((value) => value !== "") // "Alle" ignorieren
-        .join(",");
-    }
-
 
     // HIER FEHLT MEHRFACHAUSWAHL FUNKTIONALITAT VON ALTERSGRUPPEN
 
     return {
       jahr: document.getElementById("filter-jahr")?.value || "",
       geschlecht: document.getElementById("filter-geschlecht")?.value || "",
-      straftat: selectedCrimes,
-      altersgruppe: document.getElementById("filter-altersgruppe")?.value || "",
-      landkreis: cleanLandkreise.join(","),
+      straftat: straftatString,
+      altersgruppe: altersgruppeString,
+      landkreis: cleanLandkreiseNamen.join(","),
     };
   };
 
-  // Master Funktion: Lädt Daten und rendert Karte + Grafiken
+  const mapLandkreisNamenZuGemeindeschluessel = (listeZuAusfuellen, filteredRawData) => {
+    filteredRawData.forEach((landkreis) => {
+      const name = (landkreis.name || "").toLowerCase().trim();
+      listeZuAusfuellen[name] = (listeZuAusfuellen[name] || 0) + parseInt(landkreis.value || 0);
+      if (landkreis.id) {
+        // Wir wandlen die Datenbank-ID (z.B. 5315) in einen Gemeindeschluessel um (z.B. "05315")
+        const gemeindeSchluessel = String(landkreis.id).padStart(5, "0");
+        listeZuAusfuellen[gemeindeSchluessel] = (listeZuAusfuellen[gemeindeSchluessel] || 0) + parseInt(landkreis.value || 0);
+      }
+    });
+  }
+
+  // Master Funktion: Lädt Daten von Service und rendert Karte + Grafiken
   const refreshAllDashboardCharts = async () => {
     const selectedLandkreise = window.selectedLandkreise || new Set();
     const filters = getFiltersFromUI();
     await DataService.loadMapGeometryFromJson();
 
-    let rankingFilters = {};
-    rankingFilters.jahr = filters.jahr;
-    rankingFilters.geschlecht = filters.geschlecht;
-    rankingFilters.straftat = filters.straftat;
-    rankingFilters.altersgruppe = filters.altersgruppe;
-    rankingFilters.landkreis = "";
+    // Filterparameter für Aufruf erzeugen
+    let staticRankingsFilters = {
+      jahr: filters.jahr,
+      geschlecht: filters.geschlecht,
+      straftat: filters.straftat,
+      altersgruppe: filters.altersgruppe,
+      landkreis: "",
+      groupBy: "landkreis",
+    };
 
-    const straftatParams = new URLSearchParams(filters);
-    straftatParams.append("groupBy", "straftat");
+    let straftatParameters = {
+      jahr: filters.jahr,
+      geschlecht: filters.geschlecht,
+      straftat: filters.straftat,
+      altersgruppe: filters.altersgruppe,
+      landkreis: filters.landkreis,
+      groupBy: "straftat",
+    };
 
-    const ageParams = new URLSearchParams(filters);
-    ageParams.append("groupBy", "altersgruppe");
+    let ageParameters = {
+      jahr: filters.jahr,
+      geschlecht: filters.geschlecht,
+      straftat: filters.straftat,
+      altersgruppe: filters.altersgruppe,
+      landkreis: filters.landkreis,
+      groupBy: "altersgruppe",
+    };
 
-    const genderParams = new URLSearchParams(filters);
-    genderParams.append("groupBy", "gender");
-
-    const stackedParams = new URLSearchParams(filters);
-    stackedParams.delete("jahr");
-    stackedParams.append("groupBy", "straftat");
+    let genderParameters = {
+      jahr: filters.jahr,
+      geschlecht: filters.geschlecht,
+      straftat: filters.straftat,
+      altersgruppe: filters.altersgruppe,
+      landkreis: filters.landkreis,
+      groupBy: "gender",
+    };
 
     try {
-      // Laden zusätzlich den globalen Datensatz für die Top/Bottom Rankings
       const [
         filteredDataState,
-        unfilteredDataState,
-        straftatResponse,
-        ageResponse,
-        genderResponse,
-        stackedResponse,
+        staticRankingsDataState, // Daten für Top5/Bottom5 Rankings
+        straftatState,
+        ageState,
+        genderState,
       ] = await Promise.all([
-        DataService.getDataFromDatabase(filters), // Gefiltert für Karte/KPIs
-        DataService.getDataFromDatabase(rankingFilters),
-        fetch(`includes/api_opfer.php?${straftatParams.toString()}`),
-        fetch(`includes/api_opfer.php?${ageParams.toString()}`),
-        fetch(`includes/api_opfer.php?${genderParams.toString()}`),
-        fetch(`includes/api_opfer.php?${stackedParams.toString()}`),
+        DataService.getDataFromDatabase(filters),
+        DataService.getDataFromDatabase(staticRankingsFilters), // Aufruf für Top5/Bottom5 Rankings
+        DataService.getDataFromDatabase(straftatParameters),
+        DataService.getDataFromDatabase(ageParameters),
+        DataService.getDataFromDatabase(genderParameters),
       ]);
 
-      const [straftatData, ageData, genderData, stackedData] =
-        await Promise.all([
-          straftatResponse.json(),
-          ageResponse.json(),
-          genderResponse.json(),
-          stackedResponse.json(),
-        ]);
+      if (filteredDataState && staticRankingsDataState && straftatState && ageState && genderState) {
+        // --- 1. RAW DATA EXTRAHIEREN ---
+        const straftatData = straftatState.rawData;
+        const ageData = ageState.rawData;
+        const genderData = genderState.rawData;
+        const staticRankingsData = staticRankingsDataState.rawData;
+        const filteredRawData = landkreisSuchFunktion(filteredDataState.rawData, selectedLandkreise); // Daten für Karte & KPIs (reagiert auf ausgewählten Landkreis)
 
-      if (filteredDataState && unfilteredDataState) {
+        // Map von Landkreisnamen zu Gemeindeschluessel  (listeZuAusfuellen, filteredRawData)
+        const indexVonLandkreisnamenUndOpferzahlen = {};
+        mapLandkreisNamenZuGemeindeschluessel(indexVonLandkreisnamenUndOpferzahlen, filteredRawData);
 
-        // 1. Daten für Karte & KPIs (reagiert auf ausgewählten Landkreis)
-        const filteredRawData = landkreisSuchFunktion(
-          filteredDataState.rawData,
-          selectedLandkreise
-        );
-
-        // Map von Landkreisnamen zu AGS-Codes
-        const filteredIndex = {};
-        filteredRawData.forEach((item) => {
-          const name = (item.name || "").toLowerCase().trim();
-          filteredIndex[name] = (filteredIndex[name] || 0) + parseInt(item.value || 0);
-        });
-
-        filteredRawData.forEach((item) => {
-          if (item.id) {
-            // Wir wandlen die DB-ID (z.B. 5315) in einen AGS-Code um (z.B. "05315")
-            const ags = String(item.id).padStart(5, "0");
-            filteredIndex[ags] = (filteredIndex[ags] || 0) + parseInt(item.value || 0);
-          }
-        });
+        // --- 2. DATEN AN GRAFIKEN SENDEN ---
 
         // 2. Daten für Top/Bottom Rankings
-        // Hier schicken wir die Daten OHNE den Landkreis-Filter hinein
-        if (window.initDashboardCharts) window.initDashboardCharts(unfilteredDataState.rawData, filteredRawData);
-        
-        // 3. Update Karte und KPIs mit gefilterten Daten
-        if (window.updateKPI2023) window.updateKPI2023(filteredRawData);
-        if (window.updateKPI2024) window.updateKPI2024(filteredRawData);
-        if (window.initMap) window.initMap(filteredDataState.geoJSON, filteredIndex);
-
-        // 4. Update der restlichen Charts
-        if (window.initAgeChart) window.initAgeChart(ageData);
-        if (window.initCrimeComparisonChart)
-          window.initCrimeComparisonChart(straftatData);
-        if (window.renderGenderChart) window.renderGenderChart(genderData);
-        if (window.initCrimeStackedChart)
-          window.initCrimeStackedChart(stackedData);
+        // Hier schicken wir die Daten ohne Filterung für Top5/Bottom5 Rankings und die gefilterten Daten für die Top 10 Landkreise.
+        window.initRankingCharts(staticRankingsData, filteredRawData);
+        window.updateKPI2023(filteredRawData);
+        window.updateKPI2024(filteredRawData);
+        window.initMap(filteredDataState.geoJSON, indexVonLandkreisnamenUndOpferzahlen);
+        window.initAgeChart(ageData);
+        window.initCrimeComparisonChart(straftatData);
+        window.renderGenderChart(genderData);
+        window.initCrimeStackedChart(straftatData);
       }
     } catch (error) {
       console.error("Fehler beim parallel Laden der Daten:", error);
@@ -138,26 +144,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- EVENTS ---
 
+  // Anwenden-Button
+  const applyBtn = document.getElementById("apply-filters");
+  if (applyBtn) {
+    applyBtn.addEventListener("click", (e) => {
+      refreshAllDashboardCharts();
+    });
+  }
+
+  // Reset-Button
   const resetBtn = document.getElementById("reset-filters");
   if (resetBtn) {
     resetBtn.addEventListener("click", (e) => {
-      e.preventDefault();
+
+      // Aktualisierung der Dropdowns
       const dropdowns = [
         "filter-jahr",
         "filter-geschlecht",
-        "filter-straftat",
-        "filter-altersgruppe",
       ];
       dropdowns.forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.value = "all";
+        const element = document.getElementById(id);
+        if (element) element.value = "all";
       });
 
-      const straftatEl = document.getElementById("filter-straftat");
-      if (straftatEl) straftatEl.value = "";
+      const straftatElement = document.getElementById("filter-straftat");
+      if (straftatElement) straftatElement.value = "";
 
       if (window.selectedLandkreise) window.selectedLandkreise.clear();
+      if (window.selectedStraftaten) window.selectedStraftaten.clear();
+      if (window.selectedAltersgruppen) window.selectedAltersgruppen.clear();
+
       if (typeof renderTags === "function") renderTags();
+      if (typeof renderStraftatTags === "function") renderStraftatTags();
+      if (typeof renderAltersgruppeTags === "function") renderAltersgruppeTags();
 
       refreshAllDashboardCharts();
     });
@@ -165,12 +184,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.refreshDashboard = () => refreshAllDashboardCharts();
   window.refreshDashboard();
-
-  const applyBtn = document.getElementById("apply-filters");
-  if (applyBtn) {
-    applyBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      refreshAllDashboardCharts();
-    });
-  }
 });

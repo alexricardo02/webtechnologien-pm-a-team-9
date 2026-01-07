@@ -54,7 +54,6 @@ if (isset($_GET['groupBy'])) {
 // -- SQL ABFRAGE BILDEN --
 
 
-
 // 1. SQL Basisabfrage
 
 switch ($groupBy) {
@@ -76,15 +75,12 @@ switch ($groupBy) {
         break;
 }
 
+// Für prepared statements
 $params = []; // Array, in dem die tatsächlichen Werte der Filter gespeichert werden.
-$types = ""; // Datentypen für PreparedStatemets.
-
-
-
+$types = ""; // Datentypen für prepared statements.
 
 
 // 2. Filter eingeben
-
 
 if ($jahr && $jahr !== 'all') {
     $sql .= " AND Jahr = ?";
@@ -96,11 +92,39 @@ if ($geschlecht && $geschlecht !== 'all') {
     $types .= "s";
     $params[] = $geschlecht;
 }
-// --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
+
+// MEHRFACHAUSWAHL FILTERN
+
+// --- LOGIK FÜR ALTERSGRUPPE UM DUPLIKATE ZU VERMEIDEN --- 
+if ($altersgruppe && $altersgruppe !== 'all' && $altersgruppe !== '') {
+
+    $altersgruppeArray = explode(',', $altersgruppe);
+
+    $altersgruppeListe = implode(',', array_fill(0, count($altersgruppeArray), '?'));
+
+    $sql .= " AND Altersgruppe IN ($altersgruppeListe)";
+
+    foreach ($altersgruppeArray as $name) {
+        $types .= "s";
+        $params[] = $name;
+    }
+}
+
+
+
+// --- LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
 if ($straftat && $straftat !== 'all' && $straftat !== '') {
-    $sql .= " AND Straftat_Hauptkategorie = ?";
-    $types .= "s";
-    $params[] = $straftat;
+
+    $straftatArray = explode(',', $straftat);
+
+    $straftatListe = implode(',', array_fill(0, count($straftatArray), '?'));
+
+    $sql .= " AND Straftat_Hauptkategorie IN ($straftatListe)";
+
+    foreach ($straftatArray as $name) {
+        $types .= "s";
+        $params[] = $name;
+    }
 } else {
     // WENN KEINE BESTIMMTE STRAFTAT ANGEFORDERT WIRD, DANN NUR DEN GESAMTWERT (INSGESAMT) ABRUFEN.
     if ($groupBy !== 'straftat') {
@@ -110,26 +134,21 @@ if ($straftat && $straftat !== 'all' && $straftat !== '') {
         $sql .= " AND Straftat_Hauptkategorie != 'Insgesamt'";
     }
 }
-if ($altersgruppe && $altersgruppe !== 'all') {
-    $sql .= " AND Altersgruppe = ?";
-    $types .= "s";
-    $params[] = $altersgruppe;
-}
+
+//--- LOGIK FÜR LANDKREISE UM DUPLIKATE ZU VERMEIDEN --- 
 // Für den Filter $landkreis wird explode verwendet, um die Textliste in ein Array umzuwandeln, und es werden so viele Fragezeichen (?) generiert, wie Bezirke ausgewählt wurden.
 if ($landkreis) {
     $landkreisArray = explode(',', $landkreis);
 
-    $placeholders = implode(',', array_fill(0, count($landkreisArray), '?'));
+    $landkreisListe = implode(',', array_fill(0, count($landkreisArray), '?'));
 
-    $sql .= " AND Stadt_Landkreis IN ($placeholders)";
+    $sql .= " AND Stadt_Landkreis IN ($landkreisListe)";
 
     foreach ($landkreisArray as $name) {
         $types .= "s";
         $params[] = $name;
     }
 }
-
-
 
 
 // 3. GROUP BY
@@ -143,8 +162,6 @@ if ($groupBy === 'gender') {
 } else {
     $sql .= " GROUP BY Gemeindeschluessel, Stadt_Landkreis, Jahr";
 }
-
-
 
 
 // 4. Prepared Statements erstellen
@@ -161,11 +178,7 @@ if (!empty($params)) {
 
 $stmt->execute();
 $result = $stmt->get_result();
-$data = [];
-
-
-
-
+$data = []; // Daten zu verschicken
 
 // 5. Daten in ein Array schreiben
 
@@ -173,7 +186,7 @@ if ($result) {
     while ($row = $result->fetch_assoc()) {
         $item = array();
 
-        // name: Landkreisname/Straftat/Altersgruppe/Geschlecht/Location
+        // name: Landkreisname/Straftat/Altersgruppe/Geschlecht
         if (isset($row['name'])) {
             $item["name"] = $row['name'];
         } else {
@@ -202,7 +215,6 @@ if ($result) {
         array_push($data, $item);
     }
 }
-
 
 echo json_encode($data);
 

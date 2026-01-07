@@ -80,9 +80,6 @@ $params = []; // Array, in dem die tatsächlichen Werte der Filter gespeichert w
 $types = ""; // Datentypen für PreparedStatemets.
 
 
-
-
-
 // 2. Filter eingeben
 
 
@@ -98,9 +95,16 @@ if ($geschlecht && $geschlecht !== 'all') {
 }
 // --- KRISITSCHE LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
 if ($straftat && $straftat !== 'all' && $straftat !== '') {
-    $sql .= " AND Straftat_Hauptkategorie = ?";
-    $types .= "s";
-    $params[] = $straftat;
+    $straftatArray = explode(',', $straftat);
+
+    $placeholders = implode(',', array_fill(0, count($straftatArray), '?'));
+
+    $sql .= " AND Straftat_Hauptkategorie IN ($placeholders)";
+
+    foreach ($straftatArray as $name) {
+        $types .= "s";
+        $params[] = $name;
+    }
 } else {
     // WENN KEINE BESTIMMTE STRAFTAT ANGEFORDERT WIRD, DANN NUR DEN GESAMTWERT (INSGESAMT) ABRUFEN.
     if ($groupBy !== 'straftat') {
@@ -110,6 +114,9 @@ if ($straftat && $straftat !== 'all' && $straftat !== '') {
         $sql .= " AND Straftat_Hauptkategorie != 'Insgesamt'";
     }
 }
+
+
+
 if ($altersgruppe && $altersgruppe !== 'all') {
     $sql .= " AND Altersgruppe = ?";
     $types .= "s";
@@ -173,7 +180,7 @@ if ($result) {
     while ($row = $result->fetch_assoc()) {
         $item = array();
 
-        // name: Landkreisname/Straftat/Altersgruppe/Geschlecht/Location
+        // name: Landkreisname/Straftat/Altersgruppe/Geschlecht
         if (isset($row['name'])) {
             $item["name"] = $row['name'];
         } else {

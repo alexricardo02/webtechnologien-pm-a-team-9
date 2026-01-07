@@ -67,6 +67,9 @@
                 return colorScale ? colorScale(d).hex() : '#FFEDA0';
             }
 
+
+        
+
             // Namen prozessieren und Werte den GeoJSON-Eigenschaften zuweisen
             geoJSONData.features.forEach(function (feature) {
                 var gemeindeSchluessel = feature.properties.cca_2;
@@ -79,8 +82,6 @@
                 // Wir speichern den Wert in den Eigenschaften des Features
                 feature.properties.total_opfer = amountOfOpfer;
             });
-
-
 
             if (currentGeoJsonLayer) {
                 map.removeLayer(currentGeoJsonLayer);
@@ -120,9 +121,9 @@
                     });
 
                     // Zoom logic
-                    var normName = DataService.cleanTextForDatabaseMatching(feature.properties.name_2);
+                    var normName = DataService.cleanLandkreiseTextForDatabaseMatching(feature.properties.name_2);
                     if (window.selectedLandkreise && window.selectedLandkreise.size > 0) {
-                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataService.cleanTextForDatabaseMatching(s));
+                        var selectionList = Array.from(window.selectedLandkreise).map(s => DataService.cleanLandkreiseTextForDatabaseMatching(s));
 
                         if (selectionList.includes(normName)) {
                             bounds.extend(layer.getBounds());

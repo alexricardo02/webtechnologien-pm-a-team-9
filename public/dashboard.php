@@ -41,6 +41,7 @@ $straftat_hauptkategorien = [
   <script src="assets/js/dashboardController.js" defer></script>
   <script src="assets/js/age_chart.js" defer></script>
   <script src="assets/js/landkreisFilterFunction.js" defer></script>
+  <script src="assets/js/straftatenFilterFunction.js" defer></script>
 </head>
 
 <body>
@@ -90,7 +91,7 @@ $straftat_hauptkategorien = [
             </div>
         </div>
 
-        <div class="filter-group-vertical">
+        <div class="filter-group-vertical"> 
           <label for="filter-straftat">Straftat</label>
           <select id="filter-straftat" class="styled-select">
             <?php
@@ -114,7 +115,9 @@ $straftat_hauptkategorien = [
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
         <button id="reset-filters" class="button-secondary-block">Filter zurücksetzen</button>
 
+        <div id="selected-straftaten-tags-container"></div>
         <div id="selected-tags-container"></div>
+        
       </div>
     </aside>
 

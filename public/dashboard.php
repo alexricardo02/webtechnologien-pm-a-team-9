@@ -33,11 +33,7 @@ $altersgruppen_hauptkategorien = [
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="assets/js/rankings_charts.js" defer></script>
-  <script src="assets/js/gender_chart.js" defer></script>
-  <script src="assets/js/kriminalitaets_vergleich_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/style.css">
-  <script src="assets/js/kriminalitaets_gestapeltes_chart.js" defer></script>
   <link rel="stylesheet" href="assets/css/header.css">
   <link rel="stylesheet" href="assets/css/karte.css">
   <link rel="stylesheet" href="assets/css/kpi.css">
@@ -45,14 +41,18 @@ $altersgruppen_hauptkategorien = [
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/moreThan10LandkWarning.css">
   <link rel="stylesheet" href="assets/css/landkreisFilterTag.css">
+  <script src="assets/js/charts/rankings_charts.js" defer></script>
+  <script src="assets/js/charts/gender_chart.js" defer></script>
+  <script src="assets/js/charts/kriminalitaets_vergleich_chart.js" defer></script>
+  <script src="assets/js/charts/kriminalitaets_gestapeltes_chart.js" defer></script>
   <script src="assets/js/opferDataService.js" defer></script>
-  <script src="assets/js/kpi2023.js" defer></script>
-  <script src="assets/js/kpi2024.js" defer></script>
+  <script src="assets/js/charts/kpi2023.js" defer></script>
+  <script src="assets/js/charts/kpi2024.js" defer></script>
   <script src="assets/js/dashboardController.js" defer></script>
-  <script src="assets/js/age_chart.js" defer></script>
-  <script src="assets/js/landkreisFilterFunction.js" defer></script>
-  <script src="assets/js/straftatenFilterFunction.js" defer></script>
-  <script src="assets/js/altersgruppenFilterFunction.js" defer></script>
+  <script src="assets/js/charts/age_chart.js" defer></script>
+  <script src="assets/js/filters/landkreisFilterFunction.js" defer></script>
+  <script src="assets/js/filters/straftatenFilterFunction.js" defer></script>
+  <script src="assets/js/filters/altersgruppenFilterFunction.js" defer></script>
 </head>
 
 <body>

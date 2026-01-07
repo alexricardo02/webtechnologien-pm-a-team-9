@@ -7,6 +7,16 @@ $straftat_hauptkategorien = [
   "Raubdelikte" => "Raubdelikte",
   "Widerstand & Angriff" => "Widerstand & Angriff"
 ];
+
+$altersgruppen_hauptkategorien = [
+  "Alle Altersgruppen" => "",
+  "Kinder bis unter 6 Jahre" => "Kinder bis unter 6 Jahre",
+  "Kinder 6 bis unter 14 Jahre" => "Kinder 6 bis unter 14 Jahre",
+  "Jugendliche 14 bis unter 18 Jahre" => "Jugendliche 14 bis unter 18 Jahre",
+  "Heranwachsende 18 bis unter 21 Jahre" => "Heranwachsende 18 bis unter 21 Jahre",
+  "Erwachsene 21 bis unter 60 Jahre" => "Erwachsene 21 bis unter 60 Jahre",
+  "Erwachsene 60 Jahre und aelter" => "Erwachsene 60 Jahre und aelter"
+]
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -42,6 +52,7 @@ $straftat_hauptkategorien = [
   <script src="assets/js/age_chart.js" defer></script>
   <script src="assets/js/landkreisFilterFunction.js" defer></script>
   <script src="assets/js/straftatenFilterFunction.js" defer></script>
+  <script src="assets/js/altersgruppenFilterFunction.js" defer></script>
 </head>
 
 <body>
@@ -80,13 +91,11 @@ $straftat_hauptkategorien = [
             <label for="filter-altersgruppe">Altersgruppe</label>
             <div class="select-wrapper">
                 <select id="filter-altersgruppe" class="styled-select">
-                    <option value="all">Alle Altersgruppen</option>
-                    <option value="Kinder bis unter 6 Jahre">Kinder unter 6 Jahren</option>
-                    <option value="Kinder 6  bis unter 14 Jahre">Kinder 6 bis unter 14 Jahren</option>
-                    <option value="Jugendliche 14 bis unter 18 Jahre">Jugendliche 14 - 18 Jahre</option>
-                    <option value="Heranwachsende 18 bis unter 21 Jahre">Heranwachsende 18 - 21 Jahre</option>
-                    <option value="Erwachsene 21 bis unter 60 Jahre">Erwachsene 21 - 60 Jahre</option>
-                    <option value="Erwachsene 60 Jahre und aelter">Erwachsene 60+ Jahre</option>
+                    <?php
+                    foreach ($altersgruppen_hauptkategorien as $label => $value) {
+                      echo "<option value=\"" . htmlspecialchars($value) . "\">" . htmlspecialchars($label) . "</option>";
+                    }
+                    ?>
                 </select>
             </div>
         </div>
@@ -115,6 +124,7 @@ $straftat_hauptkategorien = [
         <button id="apply-filters" class="button-primary-block">Anwenden</button>
         <button id="reset-filters" class="button-secondary-block">Filter zurücksetzen</button>
 
+        <div id="selected-altersgruppen-tags-container"></div>
         <div id="selected-straftaten-tags-container"></div>
         <div id="selected-tags-container"></div>
         

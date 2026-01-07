@@ -9,7 +9,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Filtern der aktuellen Filterwerte aus dem UI
   const getFiltersFromUI = () => {
-    // Landkreise aus dem globalen Set von landkreisSuchFunktion holen
+    // Landkreise aus dem globalen Set von landkreisFilterFunktion holen
     let selectedLandkreise;
     if (window.selectedLandkreise) {
       selectedLandkreise = Array.from(window.selectedLandkreise);
@@ -22,6 +22,11 @@ document.addEventListener("DOMContentLoaded", () => {
       straftatString = Array.from(window.selectedStraftaten).join(",");
     }
 
+    let altersgruppeString = "";
+    if (window.selectedAltersgruppen) {
+      altersgruppeString = Array.from(window.selectedAltersgruppen).join(",");
+    }
+
     const cleanLandkreiseNamen = selectedLandkreise.map((name) =>
       DataService.cleanLandkreiseTextForDatabaseMatching(name)
     );
@@ -32,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       jahr: document.getElementById("filter-jahr")?.value || "",
       geschlecht: document.getElementById("filter-geschlecht")?.value || "",
       straftat: straftatString,
-      altersgruppe: document.getElementById("filter-altersgruppe")?.value || "",
+      altersgruppe: altersgruppeString,
       landkreis: cleanLandkreiseNamen.join(","),
     };
   };
@@ -156,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const dropdowns = [
         "filter-jahr",
         "filter-geschlecht",
-        "filter-altersgruppe",
       ];
       dropdowns.forEach((id) => {
         const element = document.getElementById(id);
@@ -168,8 +172,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (window.selectedLandkreise) window.selectedLandkreise.clear();
       if (window.selectedStraftaten) window.selectedStraftaten.clear();
+      if (window.selectedAltersgruppen) window.selectedAltersgruppen.clear();
+
       if (typeof renderTags === "function") renderTags();
       if (typeof renderStraftatTags === "function") renderStraftatTags();
+      if (typeof renderAltersgruppeTags === "function") renderAltersgruppeTags();
 
       refreshAllDashboardCharts();
     });

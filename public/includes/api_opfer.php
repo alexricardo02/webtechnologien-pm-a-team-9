@@ -95,11 +95,22 @@ if ($geschlecht && $geschlecht !== 'all') {
 
 // MEHRFACHAUSWAHL FILTERN
 
-if ($altersgruppe && $altersgruppe !== 'all') {
-    $sql .= " AND Altersgruppe = ?";
-    $types .= "s";
-    $params[] = $altersgruppe;
+// --- LOGIK FÜR ALTERSGRUPPE UM DUPLIKATE ZU VERMEIDEN --- 
+if ($altersgruppe && $altersgruppe !== 'all' && $altersgruppe !== '') {
+
+    $altersgruppeArray = explode(',', $altersgruppe);
+
+    $altersgruppeListe = implode(',', array_fill(0, count($altersgruppeArray), '?'));
+
+    $sql .= " AND Altersgruppe IN ($altersgruppeListe)";
+
+    foreach ($altersgruppeArray as $name) {
+        $types .= "s";
+        $params[] = $name;
+    }
 }
+
+
 
 // --- LOGIK FÜR STRAFTAT UM DUPLIKATE ZU VERMEIDEN --- 
 if ($straftat && $straftat !== 'all' && $straftat !== '') {

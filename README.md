@@ -1,7 +1,5 @@
 # 📊 Germany Victimization Statistics Dashboard (2023-2024)
 
-![Header Image](https://socialify.git.ci/your-username/your-repo-name/image?description=Interactive%20Data%20Visualization%20of%20Crime%20Statistics&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Light)
-
 ## 🌟 Project Impact & Vision
 Raw crime data is often inaccessible and difficult for the general public or policymakers to interpret. This project transforms over **432,000 rows** of German Federal Police (PKS) data into a high-performance interactive dashboard to ensure accurate data evaluation and transparency.
 
@@ -15,8 +13,7 @@ Raw crime data is often inaccessible and difficult for the general public or pol
 ## 🎬 Visual Demo
 > **Note to Recruiters:** *Below is a preview of the interactive map and the dynamic demographic charts.*
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=Insert+Your+Project+Gif+Here)
-*(Tip: Replace the link above with a GIF of your dashboard in action!)*
+![Dashboard Preview](preview)
 
 ## 🛠 Tech Stack
 ![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
